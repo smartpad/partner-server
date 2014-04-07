@@ -23,7 +23,7 @@ public class AccountResource {
 		//IUser userLogged = PartnerManager.instance.login(userName, password);
 		//User user = new User(userName, password);
 		//context.getHttpHeaders().add("Access-Control-Allow-Origin", "*");
-		context.setHeader("Access-Control-Allow-Origin", "*");
+		context.setHeader("Access-Control-Allow-Origin", "http://localhost:8080");
 		return new JsonResponse(true, "success");
 	}
 }
