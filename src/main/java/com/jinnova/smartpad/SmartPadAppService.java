@@ -1,5 +1,6 @@
 package com.jinnova.smartpad;
 
+import com.jinnova.smartpad.partner.SmartpadCommon;
 import com.jinnova.smartpad.resource.AccountResource;
 import com.yammer.dropwizard.Service;
 import com.yammer.dropwizard.config.Bootstrap;
@@ -20,6 +21,7 @@ public class SmartPadAppService extends Service<SmartPadConfiguration> {
     public void run(SmartPadConfiguration configuration,
                     Environment environment) {
         environment.addResource(new AccountResource());
+        SmartpadCommon.initialize();
     }
 
 }

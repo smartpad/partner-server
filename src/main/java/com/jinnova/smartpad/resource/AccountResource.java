@@ -10,6 +10,8 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
+import com.jinnova.smartpad.partner.IUser;
+import com.jinnova.smartpad.partner.PartnerManager;
 import com.jinnova.smartpad.util.JsonResponse;
 
 @Path("/acc")
@@ -18,12 +20,16 @@ public class AccountResource {
 
 	@GET
     public JsonResponse getFeed(@QueryParam("userId")String userName, @QueryParam("passwordId")String password, 
-    		@Context HttpServletResponse context) 
-    		throws SQLException {
-		//IUser userLogged = PartnerManager.instance.login(userName, password);
-		//User user = new User(userName, password);
-		//context.getHttpHeaders().add("Access-Control-Allow-Origin", "*");
+    		@Context HttpServletResponse context) {
 		context.setHeader("Access-Control-Allow-Origin", "http://localhost:8080");
-		return new JsonResponse(true, "success");
+		try {
+			IUser userLogged = PartnerManager.instance.login(userName, password);
+			if (userLogged == null) {
+				return new JsonResponse(false, "Incorrect account!");
+			}
+			return new JsonResponse(true, userLogged.getLogin()); 
+		} catch (SQLException e) {
+			return new JsonResponse(false, e.getMessage());
+		}
 	}
 }
