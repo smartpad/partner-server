@@ -6,10 +6,6 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.web.context.support.XmlWebApplicationContext;
 
-/**
- * @author trungnguyen
- *
- */
 public class XmlRestApplicationContext extends XmlWebApplicationContext {
     private boolean active;
     

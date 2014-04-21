@@ -6,10 +6,6 @@ import javax.servlet.ServletContext;
 import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.WebApplicationContext;
 
-/**
- * @author trungnguyen
- *
- */
 public class RestContextLoaderListener extends ContextLoaderListener {
     private final XmlRestApplicationContext appContext;
     
