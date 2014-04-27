@@ -1,7 +1,5 @@
 package com.jinnova.smartpad;
 
-import org.springframework.web.filter.DelegatingFilterProxy;
-
 import com.jinnova.smartpad.partner.SmartpadCommon;
 import com.jinnova.smartpad.resource.AccountResource;
 import com.yammer.dropwizard.Service;
@@ -28,23 +26,14 @@ public class SmartPadAppService extends Service<SmartPadConfiguration> {
 
     @Override
     public void run(SmartPadConfiguration configuration, Environment environment) {
-    	//ApplicationContext parent = new ClassPathXmlApplicationContext(new String[]{"dropwizardSpringApplicationContext.xml"}, true);
-    	
-    	XmlRestApplicationContext appCtx = new XmlRestApplicationContext(new String[]{"/spring/webservice-context.xml", "/spring/webservice-security-context.xml"});
-    	//appCtx.setParent(parent);
-    	//appCtx.setConfigLocations();
-    	//appCtx.refresh();
-        
-        //appContext.close();
-    	// Filters
-    	//FilterConfiguration filter = filterEntry.getValue();
+    	//XmlRestApplicationContext appCtx = new XmlRestApplicationContext(new String[]{"/spring/webservice-context.xml", "/spring/webservice-security-context.xml"});
         // Add filter
-        FilterBuilder filterConfig = environment.addFilter(DelegatingFilterProxy.class, "/*");
+        FilterBuilder fb = environment.addFilter(CrossDomainFilter.class, "/*");
         // Set name of filter
-        filterConfig.setName("springSecurityFilterChain");
-
+        fb.setName("crossDomainFilter");
+        fb.setInitParam(CrossDomainFilter.ACCESS_CONTROL_ALLOW_ORIGIN_PARAM, configuration.getAllowOriginSite());
         // Servlet Listeners
-        environment.addServletListeners(new RestContextLoaderListener(appCtx));
+        //environment.addServletListeners(new RestContextLoaderListener(appCtx));
 
         environment.addResource(new AccountResource());
         SmartpadCommon.initialize();

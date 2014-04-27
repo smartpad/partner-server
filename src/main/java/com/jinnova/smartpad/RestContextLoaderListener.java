@@ -11,7 +11,6 @@ public class RestContextLoaderListener extends ContextLoaderListener {
     
     public RestContextLoaderListener(XmlRestApplicationContext appContext) {
         super(appContext);
-        
         this.appContext = appContext;
     }
     

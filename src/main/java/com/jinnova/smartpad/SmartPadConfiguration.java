@@ -1,9 +1,6 @@
 package com.jinnova.smartpad;
 
-import javax.validation.constraints.NotNull;
-
 import org.codehaus.jackson.annotate.JsonProperty;
-import org.hibernate.validator.constraints.NotEmpty;
 
 import com.yammer.dropwizard.config.Configuration;
 
@@ -13,12 +10,18 @@ import com.yammer.dropwizard.config.Configuration;
  */
 public class SmartPadConfiguration extends Configuration {
 
-    @NotNull
+    /*@NotNull
     @NotEmpty
     @JsonProperty
     private String appContextType;
     
     public String getAppContextType() {
         return appContextType;
-    }
+    }*/
+	@JsonProperty
+    private String allowOriginSite;
+	
+	public String getAllowOriginSite() {
+		return this.allowOriginSite;
+	}
 }
