@@ -36,7 +36,7 @@ public class SmartPadAppService extends Service<SmartPadConfiguration> {
         //environment.addServletListeners(new RestContextLoaderListener(appCtx));
 
         environment.addResource(new AccountResource());
-        SmartpadCommon.initialize("localhost", null, "smartpad", "root", "");
+        SmartpadCommon.initialize("localhost", null, "smartpad", "root", "root");
     }
 
 }

@@ -26,7 +26,7 @@ public class AccountResource {
 			if (userLogged == null) {
 				return new JsonResponse(false, "Incorrect account!");
 			}
-			return new JsonResponse(true, userLogged); 
+			return new JsonResponse(true, new User(userLogged)); 
 		} catch (SQLException e) {
 			return new JsonResponse(false, e.getMessage());
 		}
