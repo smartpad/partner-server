@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:security="http://www.springframework.org/schema/security"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                        http://www.springframework.org/schema/beans/spring-beans.xsd
+                        http://www.springframework.org/schema/security
+                        http://www.springframework.org/schema/security/spring-security.xsd">
+
+	<bean id="spAuthenticationUserDetailsService"
+          class="com.jinnova.smartpad.security.SPAuthenticationUserDetailsService">
+        <property name="userDetailsService">
+            <bean class="com.jinnova.smartpad.security.SPUserDetailsService"/>
+        </property>
+        <property name="userCache" ref="userCache"/>
+    </bean>
+    
+    <bean id="spAuthenticationFilter" class="com.jinnova.smartpad.security.AuthenticationFilter">
+        <property name="authenticationManager" ref="spAuthenticationManager"/>
+        <property name="continueFilterChainOnUnsuccessfulAuthentication" value="false"/>
+    </bean>
+    
+    <bean id="spAuthenticationProvider"
+          class="org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationProvider">
+        <property name="preAuthenticatedUserDetailsService" ref="spAuthenticationUserDetailsService"/>
+    </bean>
+    
+    <bean id="accessDecisionManager" class="org.springframework.security.access.vote.AffirmativeBased">
+        <constructor-arg index="0">
+            <bean class="com.jinnova.smartpad.security.EmVoter">
+            </bean>
+        </constructor-arg>
+    </bean>
+    
+    <bean id="emAuthenticationEntryPoint" class="com.jinnova.smartpad.security.SPAuthenticationEntryPoint"/>
+    
+    <bean id="spMetadataSource" class="com.hmsonline.exmgr.security.SPMetadataSource">
+        <constructor-arg>
+            <bean class="org.springframework.security.access.expression.method.ExpressionBasedAnnotationAttributeFactory">
+                <constructor-arg>
+                    <bean class="org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler"/>
+                </constructor-arg>
+            </bean>
+        </constructor-arg>
+    </bean>
+    
+    <!-- ExpressionHandler -->
+    <bean id="expressionHandler"
+          class="org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler">
+        <property name="permissionEvaluator" ref="permissionEvaluator"/>
+    </bean>
+
+    <bean id="permissionEvaluator" class="com.jinnova.smartpad.security.permission.Evaluator">
+        <constructor-arg index="0">
+            <map key-type="java.lang.String" value-type="com.jinnova.smartpad.security.permission.Permission">
+                <entry key="list" value-ref="listPermission"/>
+                <entry key="view" value-ref="viewPermission"/>
+                <entry key="edit" value-ref="editPermission"/>
+                <entry key="delete" value-ref="deletePermission"/>
+            </map>
+        </constructor-arg>
+    </bean>
+
+    <bean id="listPermission" class="com.jinnova.smartpad.security.permission.ListPermission"/>
+    <bean id="viewPermission" class="com.jinnova.smartpad.security.permission.ViewPermission"/>
+    <bean id="editPermission" class="com.jinnova.smartpad.security.permission.EditPermission"/>
+    <bean id="deletePermission" class="com.jinnova.smartpad.security.permission.DeletePermission"/>
+    
+    <!-- security tags -->
+    <security:global-method-security
+            pre-post-annotations="enabled"
+            metadata-source-ref="spMetadataSource"
+            authentication-manager-ref="spAuthenticationManager">
+        <security:expression-handler ref="expressionHandler"/>
+    </security:global-method-security>
+
+    <security:authentication-manager alias="spAuthenticationManager">
+        <security:authentication-provider ref="spAuthenticationProvider"/>
+    </security:authentication-manager>
+    
+    <security:http create-session="stateless" use-expressions="true"
+                   entry-point-ref="spAuthenticationEntryPoint"
+                   access-decision-manager-ref="accessDecisionManager"
+                   authentication-manager-ref="spAuthenticationManager">
+        <security:intercept-url pattern="/**" access="permitAll()"/>
+        <security:custom-filter ref="spAuthenticationFilter" position="PRE_AUTH_FILTER"/>
+    </security:http>
+</beans>
