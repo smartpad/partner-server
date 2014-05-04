@@ -1,6 +1,7 @@
 package com.jinnova.smartpad.domain;
 
 import java.io.Serializable;
+import java.util.List;
 
 import com.jinnova.smartpad.partner.IUser;
 
@@ -41,4 +42,9 @@ public class User implements Serializable {
 		this.passwordText = passwordText;
 	}
 	
+	public List<Branch> getAllStore() {
+		this.user.getBranch().getRootCatalog();
+		//this.user.getStorePagingList().
+		return null;
+	}
 }
