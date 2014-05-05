@@ -1,7 +1,9 @@
 package com.jinnova.smartpad.domain;
 
 import java.io.Serializable;
-import java.util.List;
+import java.sql.SQLException;
+
+import org.codehaus.jackson.annotate.JsonIgnore;
 
 import com.jinnova.smartpad.partner.IUser;
 
@@ -9,7 +11,10 @@ public class User implements Serializable {
 	
 	private static final long serialVersionUID = 1L;
 
+	@JsonIgnore
 	private IUser user;
+	
+	private Catalog catalog;
 	
 	private String userNameText;
 	
@@ -20,12 +25,22 @@ public class User implements Serializable {
 	
 	public User(IUser user) {
 		this.user = user;
+		this.userNameText = user.getLogin();
 	}
 	
-	public String getName() {
-		return user.getLogin();
+	public Catalog getCatalog() throws SQLException {
+		catalog = new Catalog(user.getBranch().getRootCatalog(), this, user);
+		return catalog;
 	}
 
+	public void setCatalog(Catalog catalog) {
+		this.catalog = catalog;
+	}
+	
+	/*public IUser getUserDB() {
+		return this.user;
+	}*/
+	
 	public String getUserNameText() {
 		return userNameText;
 	}
@@ -42,9 +57,5 @@ public class User implements Serializable {
 		this.passwordText = passwordText;
 	}
 	
-	public List<Branch> getAllStore() {
-		this.user.getBranch().getRootCatalog();
-		//this.user.getStorePagingList().
-		return null;
-	}
+	
 }
