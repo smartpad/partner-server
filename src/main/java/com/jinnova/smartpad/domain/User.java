@@ -28,11 +28,15 @@ public class User implements Serializable {
 		this.userNameText = user.getLogin();
 	}
 	
-	public Catalog getCatalog() throws SQLException {
-		catalog = new Catalog(user.getBranch().getRootCatalog(), this, user);
+	public Catalog getCatalog() {
+		//catalog = new Catalog(user.getBranch().getRootCatalog(), this, user);
 		return catalog;
 	}
 
+	public void loadCatalog() throws SQLException {
+		catalog = new Catalog(user.getBranch().getRootCatalog(), this, user);
+	}
+	
 	public void setCatalog(Catalog catalog) {
 		this.catalog = catalog;
 	}

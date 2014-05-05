@@ -24,10 +24,11 @@ public class CatalogResource {
 			return new JsonResponse(false, "User not logged in!");
 		}
 		try {
-			return new JsonResponse(true, user.getCatalog());
+			user.loadCatalog();
 		} catch (SQLException e) {
 			return new JsonResponse(false, "Cannot load catalog info: " + e.getMessage());
 		}
+		return new JsonResponse(true, user.getCatalog());
 	}
 
 }
