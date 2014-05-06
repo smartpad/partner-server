@@ -7,7 +7,6 @@ import java.util.List;
 import com.jinnova.smartpad.IPage;
 import com.jinnova.smartpad.partner.ICatalog;
 import com.jinnova.smartpad.partner.ICatalogField;
-import com.jinnova.smartpad.partner.ICatalogFieldType;
 import com.jinnova.smartpad.partner.ICatalogItem;
 import com.jinnova.smartpad.partner.IUser;
 
@@ -56,12 +55,12 @@ public class Catalog {
 		if (catalog == null) {
 			return;
 		}
-		if (catalog.getCatalogSpec() == null) {
+		/*if (catalog.getCatalogSpec() == null) {
 			allFields.add(new CatalogField(ICatalogField.ID_DESC, "Des", ICatalogFieldType.Text_Desc.name()));
 			allFields.add(new CatalogField(ICatalogField.ID_NAME, "Name", ICatalogFieldType.Text_Name.name()));
 			return;
-		}
-		ICatalogField[] allFieldRoot = catalog.getCatalogSpec().getAllFields();
+		}*/
+		ICatalogField[] allFieldRoot = catalog.getSystemCatalog().getCatalogSpec().getAllFields();
 		if (allFieldRoot == null) {
 			return;
 		}
