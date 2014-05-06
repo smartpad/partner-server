@@ -39,8 +39,8 @@ public class Catalog {
 	public Catalog(ICatalog catalog, User user, IUser userDB) throws SQLException {
 		//this.catalog = catalog;
 		//this.user = user;
-		this.name = catalog.getName().getName();
-		this.des = catalog.getName().getDescription();
+		this.name = catalog.getName();
+		this.des = catalog.getDesc().getDescription();
 		this.id = catalog.getId();
 		allSubCatalogs = new LinkedList<>();
 		loadAllSubCatalogs(user, userDB, catalog, allSubCatalogs);
