@@ -12,12 +12,12 @@ import com.jinnova.smartpad.UserLoggedInManager;
 import com.jinnova.smartpad.domain.User;
 import com.jinnova.smartpad.util.JsonResponse;
 
-@Path("/")
+@Path("/catalog")
 @Produces(MediaType.APPLICATION_JSON)
 public class CatalogResource {
 
 	@GET
-	@Path("catalog")//{catalogId}
+	@Path("/get-all-catalog")//{catalogId}
     public JsonResponse getCatalog(/*@PathParam("catalogId") String catalogId,*/ @QueryParam("userName") String userName) {
 		User user = UserLoggedInManager.instance.getUser(userName);
 		if (user == null) {

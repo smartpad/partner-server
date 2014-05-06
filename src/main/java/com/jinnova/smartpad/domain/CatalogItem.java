@@ -20,8 +20,8 @@ public class CatalogItem {
 		this.valuesMulti = new HashMap<>();
 		if (allFields != null) {
 			for (CatalogField field : allFields) {
-				valuesSingle.put(field.getName(), item.getFieldValue(field.getId()));
-				valuesMulti.put(field.getName(), item.getFieldValues(field.getId()));
+				valuesSingle.put(field.getId(), item.getFieldValue(field.getId()));
+				valuesMulti.put(field.getId(), item.getFieldValues(field.getId()));
 			}
 		}
 	}

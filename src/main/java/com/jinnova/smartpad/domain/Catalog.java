@@ -1,5 +1,6 @@
 package com.jinnova.smartpad.domain;
 
+import java.io.Serializable;
 import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
@@ -10,12 +11,17 @@ import com.jinnova.smartpad.partner.ICatalogField;
 import com.jinnova.smartpad.partner.ICatalogItem;
 import com.jinnova.smartpad.partner.IUser;
 
-public class Catalog {
+public class Catalog implements Serializable {
 
 	//private final ICatalog catalog;
 
 	//private User user;
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -4938216075669187383L;
+
 	private List<Catalog> allSubCatalogs;
 	
 	private List<CatalogItem> allItems;
