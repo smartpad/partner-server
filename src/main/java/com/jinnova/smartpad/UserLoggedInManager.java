@@ -4,6 +4,7 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.jinnova.smartpad.domain.Token;
 import com.jinnova.smartpad.domain.User;
 import com.jinnova.smartpad.partner.IUser;
 import com.jinnova.smartpad.partner.PartnerManager;
@@ -28,7 +29,7 @@ public class UserLoggedInManager {
 			allLoggedInUser.remove(login);
 			return null;
 		}
-		User result = new User(user);
+		User result = new User(user, new Token(login, login)); // TODO create new token for this logged user
 		allLoggedInUser.put(login, result);
 		return result;
 	}

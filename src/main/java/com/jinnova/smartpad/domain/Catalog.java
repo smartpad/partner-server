@@ -6,14 +6,14 @@ import java.util.LinkedList;
 import java.util.List;
 
 import com.jinnova.smartpad.IPage;
+import com.jinnova.smartpad.UserLoggedInManager;
 import com.jinnova.smartpad.partner.ICatalog;
 import com.jinnova.smartpad.partner.ICatalogField;
 import com.jinnova.smartpad.partner.ICatalogItem;
 import com.jinnova.smartpad.partner.IUser;
 
-public class Catalog implements Serializable {
+public class Catalog implements Serializable, INeedTokenObj {
 
-	//private final ICatalog catalog;
 
 	//private User user;
 	
@@ -21,6 +21,8 @@ public class Catalog implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = -4938216075669187383L;
+	
+	private final ICatalog catalog;
 
 	private List<Catalog> allSubCatalogs;
 	
@@ -34,30 +36,36 @@ public class Catalog implements Serializable {
 	
 	private String des;
 	
+	private IToken token;
+	
+	private String parentId;
+	
 	public Catalog() {
-		//this.catalog = null;
+		this.catalog = null;
 		allSubCatalogs = new LinkedList<>();
 		allFields = new LinkedList<>();
 		allItems = new LinkedList<>();
 	}
 	
-	public Catalog(ICatalog catalog, User user, IUser userDB) throws SQLException {
-		//this.catalog = catalog;
+	public Catalog(String parentId, ICatalog catalog, User user, IUser userDB, IToken token) throws SQLException {
+		this.parentId = parentId;
+		this.catalog = catalog;
 		//this.user = user;
 		this.name = catalog.getName();
 		this.des = catalog.getDesc().getDescription();
 		this.id = catalog.getId();
+		this.token = token;
 		allSubCatalogs = new LinkedList<>();
-		loadAllSubCatalogs(user, userDB, catalog, allSubCatalogs);
+		loadAllSubCatalogs(user, userDB, catalog, allSubCatalogs, token);
 		
 		allFields = new LinkedList<>();
-		loadAllCatalogField(catalog, allFields);
+		loadAllCatalogField(catalog, allFields, token);
 		
 		allItems = new LinkedList<>();
-		loadAllCatalogItem(userDB, catalog, allFields, allItems);
+		loadAllCatalogItem(userDB, catalog, allFields, allItems, token);
 	}
 	
-	private static final void loadAllCatalogField(ICatalog catalog, List<CatalogField> allFields) {
+	private static final void loadAllCatalogField(ICatalog catalog, List<CatalogField> allFields, IToken token) {
 		if (catalog == null) {
 			return;
 		}
@@ -71,11 +79,11 @@ public class Catalog implements Serializable {
 			return;
 		}
 		for (ICatalogField cF : allFieldRoot) {
-			allFields.add(new CatalogField(cF));
+			allFields.add(new CatalogField(cF, token));
 		}
 	}
 
-	private static final void loadAllCatalogItem(IUser user, ICatalog catalog, List<CatalogField> allFields, List<CatalogItem> allItems) throws SQLException {
+	private static final void loadAllCatalogItem(IUser user, ICatalog catalog, List<CatalogField> allFields, List<CatalogItem> allItems, IToken token) throws SQLException {
 		IPage<ICatalogItem> page = catalog.getCatalogItemPagingList().setPageSize(-1).loadPage(user, 1);
 		if (page == null) {
 			return;
@@ -85,11 +93,11 @@ public class Catalog implements Serializable {
 			return;
 		}
 		for (ICatalogItem item : allDBItems) {
-			allItems.add(new CatalogItem(item, allFields));
+			allItems.add(new CatalogItem(item, allFields, token));
 		}
 	}
 
-	private static final void loadAllSubCatalogs(User user, IUser userDB, ICatalog catalog, List<Catalog> allSubCatalogs) throws SQLException {
+	private static final void loadAllSubCatalogs(User user, IUser userDB, ICatalog catalog, List<Catalog> allSubCatalogs, IToken token) throws SQLException {
 		IPage<ICatalog> page = catalog.getSubCatalogPagingList().setPageSize(-1).loadPage(userDB, 1);
 		if (page == null) {
 			return;
@@ -99,7 +107,7 @@ public class Catalog implements Serializable {
 			return;
 		}
 		for (ICatalog subCatalog : subCatalogs) {
-			allSubCatalogs.add(new Catalog(subCatalog, user, userDB));
+			allSubCatalogs.add(new Catalog(catalog.getId(), subCatalog, user, userDB, token));
 		}
 	}
 
@@ -111,6 +119,14 @@ public class Catalog implements Serializable {
 		return this.catalog;
 	}*/
 	
+	public String getParentId() {
+		return parentId;
+	}
+	
+	public boolean isRootCatalog() {
+		return this.parentId == null;
+	}
+
 	public String getName() {
 		return name;
 	}
@@ -153,6 +169,46 @@ public class Catalog implements Serializable {
 
 	public void setAllFields(List<CatalogField> allFields) {
 		this.allFields = allFields;
+	}
+
+	public IToken getToken() {
+		return token;
+	}
+
+	public void setToken(IToken token) {
+		this.token = token;
+	}
+
+	public boolean isNew() {
+		return this.id == null || this.id.trim().isEmpty();
+	}
+
+	public Catalog updateFromThisAndBelowCats(Catalog updateCatalog) throws SQLException {
+		if (updateCatalog == null) {
+			return null;
+		}
+		User user = UserLoggedInManager.instance.getUser(this.token.getUserName());
+		IUser userDB = user.getUserDB();
+		if (this.id.equals(updateCatalog.getId())) {
+			this.name = updateCatalog.getName();
+			this.catalog.setName(updateCatalog.getName());
+			// TODO open setDes for update this info this.catalog.setDes(updateCatalog.getName()); ??
+			this.catalog.getSubCatalogPagingList().put(userDB, this.catalog);
+			return this;
+		}
+		if (updateCatalog.isNew() && updateCatalog.getParentId().equals(this.id)) {
+			ICatalog cat = this.catalog.getSubCatalogPagingList().newEntryInstance(userDB);
+			cat.setName(updateCatalog.getName());
+			this.catalog.getSubCatalogPagingList().put(userDB, cat);
+			return new Catalog(this.getId(), cat, user, userDB, token);
+		}
+		for (Catalog catalog : allSubCatalogs) {
+			Catalog result = catalog.updateFromThisAndBelowCats(updateCatalog);
+			if (result != null) {
+				return result;
+			}
+		}
+		return null;
 	}
 	
 }
