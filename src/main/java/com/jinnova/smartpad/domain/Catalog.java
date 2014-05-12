@@ -218,25 +218,24 @@ public class Catalog implements Serializable, INeedTokenObj {
 		if (this.catalog.getSystemCatalog().getId().equals(catalogId)) {
 			return "Cannot delete root catalog";
 		}
-		if (this.id.equals(catalogId)) {
-			this.catalog.getSubCatalogPagingList().delete(user, this.catalog);
-			return null;
-		}
-
-		String deleteFromSubCats = deleteSubCatalog(catalogId, user, this.allSubCatalogs);
+		String deleteFromSubCats = deleteSubCatalog(this.catalog, catalogId, user, this.allSubCatalogs);
 		if (deleteFromSubCats != null) {
 			return deleteFromSubCats;
 		}
 		return null;
 	}
 
-	private static String deleteSubCatalog(String catalogId, IUser user,
+	private static String deleteSubCatalog(final ICatalog catalog, final String catalogId, final IUser user,
 			List<Catalog> allSubCatalogs) throws SQLException {
 		final String notFindCatalogErrorMessage = "Can not find catalog to delete";
 		if (allSubCatalogs == null) {
 			return notFindCatalogErrorMessage;
 		}
 		for (Catalog subCatalog : allSubCatalogs) {
+			if (catalogId.equals(subCatalog.id)) {
+				catalog.getSubCatalogPagingList().delete(user, subCatalog.catalog);
+				return null;
+			}
 			String subCatalogResult = subCatalog.deleteSubCatalog(catalogId, user);
 			if (subCatalogResult == null || !notFindCatalogErrorMessage.equals(subCatalogResult)) {
 				return subCatalogResult;
