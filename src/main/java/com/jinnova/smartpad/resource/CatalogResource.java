@@ -56,11 +56,23 @@ public class CatalogResource {
 			return new JsonResponse(false, "Cannot save catalog info: " + e.getMessage());
 		}
 	}
-	
+
 	@DELETE
-	@Path("/")
-	public JsonResponse deleteCatalog(Catalog catalog) {
-		// TODO
-		return null;
+	@Path("/{user}/{catalogId}")
+	public JsonResponse deleteCatalog(/*Catalog catalog*/@PathParam("user") String userName, @PathParam("catalogId") String catalogId) {
+		User user = UserLoggedInManager.instance.getUser(userName);
+		if (user == null) {
+			return new JsonResponse(false, "User not logged in!");
+		}
+		try {
+			String deleteResult = user.getCatalog().deleteSubCatalog(catalogId, user.toUserDB());
+			System.out.println("user.getCatalog().getAllSubCatalogs().size " + user.getCatalog().getAllSubCatalogs().size());
+			if (deleteResult != null) {
+				return new JsonResponse(false, "Cannot delete catalog info: " + deleteResult);
+			}
+			return new JsonResponse(true, user.getCatalog());
+		} catch (SQLException e) {
+			return new JsonResponse(false, "Cannot delete catalog info: " + e.getMessage());
+		}
 	}
 }
