@@ -2,8 +2,6 @@ package com.jinnova.smartpad.domain;
 
 import java.io.Serializable;
 
-import org.codehaus.jackson.annotate.JsonIgnore;
-
 import com.jinnova.smartpad.partner.ICatalogField;
 
 public class CatalogField implements Serializable, INeedTokenObj {
@@ -13,8 +11,8 @@ public class CatalogField implements Serializable, INeedTokenObj {
 	 */
 	private static final long serialVersionUID = 6321698794265538355L;
 
-	@JsonIgnore
-	private final ICatalogField catalogField;
+	/*@JsonIgnore
+	private final ICatalogField catalogField;*/
 
 	private String id;
 	
@@ -25,7 +23,7 @@ public class CatalogField implements Serializable, INeedTokenObj {
 	private IToken token;
 	
 	public CatalogField() {
-		this.catalogField = null;
+		//this.catalogField = null;
 	}
 	
 	/*public CatalogField(String id, String name, String fieldType, IToken token) {
@@ -37,10 +35,10 @@ public class CatalogField implements Serializable, INeedTokenObj {
 	}*/
 	
 	public CatalogField(ICatalogField catalogField, IToken token) {
-		this.catalogField = catalogField;
-		this.id = this.catalogField.getId();
-		this.name = this.catalogField.getName();
-		this.fieldType = this.catalogField.getFieldType().name();
+		//this.catalogField = catalogField;
+		this.id = catalogField.getId();
+		this.name = catalogField.getName();
+		this.fieldType = catalogField.getFieldType().name();
 		this.token = token;
 	}
 	

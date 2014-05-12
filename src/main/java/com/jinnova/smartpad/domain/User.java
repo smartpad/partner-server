@@ -12,7 +12,7 @@ public class User implements Serializable, INeedTokenObj {
 	private static final long serialVersionUID = 1L;
 
 	@JsonIgnore
-	private IUser user;
+	private transient IUser user;
 	
 	private Catalog catalog;
 	
@@ -70,13 +70,15 @@ public class User implements Serializable, INeedTokenObj {
 			return null;
 		}
 		Catalog result = getCatalog().updateFromThisAndBelowCats(updateCatalog);
-		/*if (result != null) {
-			getCatalog();
-		}*/
 		return result;
 	}
 
-	public IUser getUserDB() {
+	/**
+	 * NOTE do not change method name like get... cause auto convert to json and make error
+	 * @return user loaded from db
+	 */
+	@JsonIgnore
+	public IUser toUserDB() {
 		return this.user;
 	}
 }

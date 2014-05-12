@@ -5,6 +5,8 @@ import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
+
 import com.jinnova.smartpad.IPage;
 import com.jinnova.smartpad.UserLoggedInManager;
 import com.jinnova.smartpad.partner.ICatalog;
@@ -22,6 +24,7 @@ public class Catalog implements Serializable, INeedTokenObj {
 	 */
 	private static final long serialVersionUID = -4938216075669187383L;
 	
+	@JsonIgnore
 	private final ICatalog catalog;
 
 	private List<Catalog> allSubCatalogs;
@@ -188,7 +191,7 @@ public class Catalog implements Serializable, INeedTokenObj {
 			return null;
 		}
 		User user = UserLoggedInManager.instance.getUser(this.token.getUserName());
-		IUser userDB = user.getUserDB();
+		IUser userDB = user.toUserDB();
 		if (this.id.equals(updateCatalog.getId())) {
 			this.name = updateCatalog.getName();
 			this.catalog.setName(updateCatalog.getName());

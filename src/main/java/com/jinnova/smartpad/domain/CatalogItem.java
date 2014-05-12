@@ -5,8 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.codehaus.jackson.annotate.JsonIgnore;
-
 import com.jinnova.smartpad.partner.ICatalogItem;
 
 public class CatalogItem implements Serializable, INeedTokenObj {
@@ -22,21 +20,21 @@ public class CatalogItem implements Serializable, INeedTokenObj {
 
 	private IToken token;
 
-	@JsonIgnore
-	private ICatalogItem item;
+	/*@JsonIgnore
+	private ICatalogItem item;*/
 	
 	public CatalogItem() {
 	}
 	
 	public CatalogItem(ICatalogItem item, List<CatalogField> allFields, IToken token) {
-		this.item = item;
+		//this.item = item;
 		this.valuesSingle = new HashMap<>();
 		this.valuesMulti = new HashMap<>();
 		this.token = token;
 		if (allFields != null) {
 			for (CatalogField field : allFields) {
-				valuesSingle.put(field.getId(), this.item.getFieldValue(field.getId()));
-				valuesMulti.put(field.getId(), this.item.getFieldValues(field.getId()));
+				valuesSingle.put(field.getId(), item.getFieldValue(field.getId()));
+				valuesMulti.put(field.getId(), item.getFieldValues(field.getId()));
 			}
 		}
 	}
