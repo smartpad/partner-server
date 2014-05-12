@@ -20,7 +20,7 @@ public class CatalogField implements Serializable, INeedTokenObj {
 	
 	private String fieldType;
 
-	private IToken token;
+	private Token token;
 	
 	public CatalogField() {
 		//this.catalogField = null;
@@ -34,7 +34,7 @@ public class CatalogField implements Serializable, INeedTokenObj {
 		this.token = token;
 	}*/
 	
-	public CatalogField(ICatalogField catalogField, IToken token) {
+	public CatalogField(ICatalogField catalogField, Token token) {
 		//this.catalogField = catalogField;
 		this.id = catalogField.getId();
 		this.name = catalogField.getName();
@@ -67,7 +67,7 @@ public class CatalogField implements Serializable, INeedTokenObj {
 	}
 
 	@Override
-	public IToken getToken() {
+	public Token getToken() {
 		return token;
 	}
 

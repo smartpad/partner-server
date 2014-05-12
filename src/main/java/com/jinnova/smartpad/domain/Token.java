@@ -1,11 +1,21 @@
 package com.jinnova.smartpad.domain;
 
-public class Token implements IToken {
+import java.io.Serializable;
 
-	private final String userName;
+public class Token implements Serializable, IToken {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -7183777667118632389L;
+
+	private String userName;
 	
-	private final String token;
+	private String token;
 	
+	public Token() {
+	}
+
 	public Token(String userName, String token) {
 		this.userName = userName;
 		this.token = token;
@@ -20,4 +30,13 @@ public class Token implements IToken {
 	public String getToken() {
 		return token;
 	}
+
+	public void setUserName(String userName) {
+		this.userName = userName;
+	}
+
+	public void setToken(String token) {
+		this.token = token;
+	}
+
 }

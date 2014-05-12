@@ -39,7 +39,7 @@ public class Catalog implements Serializable, INeedTokenObj {
 	
 	private String des;
 	
-	private IToken token;
+	private Token token;
 	
 	private String parentId;
 	
@@ -50,7 +50,7 @@ public class Catalog implements Serializable, INeedTokenObj {
 		allItems = new LinkedList<>();
 	}
 	
-	public Catalog(String parentId, ICatalog catalog, User user, IUser userDB, IToken token) throws SQLException {
+	public Catalog(String parentId, ICatalog catalog, User user, IUser userDB, Token token) throws SQLException {
 		this.parentId = parentId;
 		this.catalog = catalog;
 		//this.user = user;
@@ -68,7 +68,7 @@ public class Catalog implements Serializable, INeedTokenObj {
 		loadAllCatalogItem(userDB, catalog, allFields, allItems, token);
 	}
 	
-	private static final void loadAllCatalogField(ICatalog catalog, List<CatalogField> allFields, IToken token) {
+	private static final void loadAllCatalogField(ICatalog catalog, List<CatalogField> allFields, Token token) {
 		if (catalog == null) {
 			return;
 		}
@@ -86,7 +86,7 @@ public class Catalog implements Serializable, INeedTokenObj {
 		}
 	}
 
-	private static final void loadAllCatalogItem(IUser user, ICatalog catalog, List<CatalogField> allFields, List<CatalogItem> allItems, IToken token) throws SQLException {
+	private static final void loadAllCatalogItem(IUser user, ICatalog catalog, List<CatalogField> allFields, List<CatalogItem> allItems, Token token) throws SQLException {
 		IPage<ICatalogItem> page = catalog.getCatalogItemPagingList().setPageSize(-1).loadPage(user, 1);
 		if (page == null) {
 			return;
@@ -100,7 +100,7 @@ public class Catalog implements Serializable, INeedTokenObj {
 		}
 	}
 
-	private static final void loadAllSubCatalogs(User user, IUser userDB, ICatalog catalog, List<Catalog> allSubCatalogs, IToken token) throws SQLException {
+	private static final void loadAllSubCatalogs(User user, IUser userDB, ICatalog catalog, List<Catalog> allSubCatalogs, Token token) throws SQLException {
 		IPage<ICatalog> page = catalog.getSubCatalogPagingList().setPageSize(-1).loadPage(userDB, 1);
 		if (page == null) {
 			return;
@@ -178,7 +178,7 @@ public class Catalog implements Serializable, INeedTokenObj {
 		return token;
 	}
 
-	public void setToken(IToken token) {
+	public void setToken(Token token) {
 		this.token = token;
 	}
 

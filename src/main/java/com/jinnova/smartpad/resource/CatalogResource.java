@@ -13,7 +13,6 @@ import javax.ws.rs.core.MediaType;
 import com.jinnova.smartpad.UserLoggedInManager;
 import com.jinnova.smartpad.domain.Catalog;
 import com.jinnova.smartpad.domain.User;
-import com.jinnova.smartpad.partner.PartnerManager;
 import com.jinnova.smartpad.util.JsonResponse;
 
 @Path("/catalog")
@@ -36,7 +35,7 @@ public class CatalogResource {
 
 	@POST
 	@Path("/")
-	public JsonResponse saveCatalog(Catalog updateCatalog) {
+	public JsonResponse saveCatalog(final Catalog updateCatalog) {
 		// TODO
 		if (updateCatalog == null) {
 			// TODO validate
@@ -46,16 +45,16 @@ public class CatalogResource {
 		if (user == null) {
 			return new JsonResponse(false, "User not logged in!");
 		}
-		/*if (updateCatalog.isNew()) {
-			// TODO save new cat
-		}*/
 		// Update catalog
 		try {
-			updateCatalog = user.updateCatalog(updateCatalog);
+			Catalog updateCatalogResult = user.updateCatalog(updateCatalog);
+			if (updateCatalogResult == null) {
+				return new JsonResponse(false, "Cannot find or update catalog: " + updateCatalog.getName());
+			}
+			return new JsonResponse(true, updateCatalogResult);
 		} catch (SQLException e) {
 			return new JsonResponse(false, "Cannot save catalog info: " + e.getMessage());
 		}
-		return new JsonResponse(true, updateCatalog);
 	}
 	
 	@DELETE

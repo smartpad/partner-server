@@ -18,7 +18,7 @@ public class CatalogItem implements Serializable, INeedTokenObj {
 	
 	private Map<String, String[]> valuesMulti;
 
-	private IToken token;
+	private Token token;
 
 	/*@JsonIgnore
 	private ICatalogItem item;*/
@@ -26,7 +26,7 @@ public class CatalogItem implements Serializable, INeedTokenObj {
 	public CatalogItem() {
 	}
 	
-	public CatalogItem(ICatalogItem item, List<CatalogField> allFields, IToken token) {
+	public CatalogItem(ICatalogItem item, List<CatalogField> allFields, Token token) {
 		//this.item = item;
 		this.valuesSingle = new HashMap<>();
 		this.valuesMulti = new HashMap<>();

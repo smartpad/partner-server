@@ -20,12 +20,12 @@ public class User implements Serializable, INeedTokenObj {
 	
 	private String passwordText;
 
-	private IToken token;
+	private Token token;
 	
 	public User() {
 	}
 	
-	public User(IUser user, IToken token) {
+	public User(IUser user, Token token) {
 		this.user = user;
 		this.token = token;
 		this.userNameText = user.getLogin();
@@ -61,7 +61,7 @@ public class User implements Serializable, INeedTokenObj {
 		this.passwordText = passwordText;
 	}
 
-	public IToken getToken() {
+	public Token getToken() {
 		return token;
 	}
 
@@ -70,7 +70,10 @@ public class User implements Serializable, INeedTokenObj {
 			return null;
 		}
 		Catalog result = getCatalog().updateFromThisAndBelowCats(updateCatalog);
-		return result;
+		if (result != null) {
+			return getCatalog();
+		}
+		return null;
 	}
 
 	/**
