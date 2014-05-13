@@ -195,13 +195,14 @@ public class Catalog implements Serializable, INeedTokenObj {
 		if (this.id.equals(updateCatalog.getId())) {
 			this.name = updateCatalog.getName();
 			this.catalog.setName(updateCatalog.getName());
-			// TODO open setDes for update this info this.catalog.setDes(updateCatalog.getName()); ??
+			this.catalog.getDesc().setDescription(updateCatalog.getDes());
 			this.catalog.getSubCatalogPagingList().put(userDB, this.catalog);
 			return this;
 		}
 		if (updateCatalog.isNew() && updateCatalog.getParentId().equals(this.id)) {
 			ICatalog cat = this.catalog.getSubCatalogPagingList().newEntryInstance(userDB);
 			cat.setName(updateCatalog.getName());
+			cat.getDesc().setDescription(updateCatalog.getDes());
 			this.catalog.getSubCatalogPagingList().put(userDB, cat);
 			return new Catalog(this.getId(), cat, user, userDB, token);
 		}
