@@ -2,6 +2,7 @@ package com.jinnova.smartpad;
 
 import com.jinnova.smartpad.partner.SmartpadCommon;
 import com.jinnova.smartpad.resource.AccountResource;
+import com.jinnova.smartpad.resource.CatalogResource;
 import com.yammer.dropwizard.Service;
 import com.yammer.dropwizard.config.Bootstrap;
 import com.yammer.dropwizard.config.Environment;
@@ -36,7 +37,9 @@ public class SmartPadAppService extends Service<SmartPadConfiguration> {
         //environment.addServletListeners(new RestContextLoaderListener(appCtx));
 
         environment.addResource(new AccountResource());
-        SmartpadCommon.initialize("localhost", null, "smartpad", "root", "");
+        environment.addResource(new CatalogResource());
+        SmartpadCommon.initialize("localhost", null, "smartpad", "root", "root");
+        UserLoggedInManager.initialize();
     }
 
 }

@@ -1,30 +1,50 @@
 package com.jinnova.smartpad.domain;
 
 import java.io.Serializable;
+import java.sql.SQLException;
+
+import org.codehaus.jackson.annotate.JsonIgnore;
 
 import com.jinnova.smartpad.partner.IUser;
 
-public class User implements Serializable {
+public class User implements Serializable, INeedTokenObj {
 	
 	private static final long serialVersionUID = 1L;
 
-	private IUser user;
+	@JsonIgnore
+	private transient IUser user;
+	
+	private Catalog catalog;
 	
 	private String userNameText;
 	
 	private String passwordText;
+
+	private Token token;
 	
 	public User() {
 	}
 	
-	public User(IUser user) {
+	public User(IUser user, Token token) {
 		this.user = user;
-	}
-	
-	public String getName() {
-		return user.getLogin();
+		this.token = token;
+		this.userNameText = user.getLogin();
 	}
 
+	public Catalog getCatalog() throws SQLException {
+		//catalog = new Catalog(user.getBranch().getRootCatalog(), this, user);
+		catalog = new Catalog(null, user.getBranch().getRootCatalog(), this, user, token);
+		return catalog;
+	}
+
+	public void setCatalog(Catalog catalog) {
+		this.catalog = catalog;
+	}
+	
+	/*public IUser getUserDB() {
+		return this.user;
+	}*/
+	
 	public String getUserNameText() {
 		return userNameText;
 	}
@@ -40,5 +60,28 @@ public class User implements Serializable {
 	public void setPasswordText(String passwordText) {
 		this.passwordText = passwordText;
 	}
-	
+
+	public Token getToken() {
+		return token;
+	}
+
+	public Catalog updateCatalog(Catalog updateCatalog) throws SQLException {
+		if (updateCatalog == null) {
+			return null;
+		}
+		Catalog result = getCatalog().updateFromThisAndBelowCats(updateCatalog);
+		if (result != null) {
+			return getCatalog();
+		}
+		return null;
+	}
+
+	/**
+	 * NOTE do not change method name like get... cause auto convert to json and make error
+	 * @return user loaded from db
+	 */
+	@JsonIgnore
+	public IUser toUserDB() {
+		return this.user;
+	}
 }
