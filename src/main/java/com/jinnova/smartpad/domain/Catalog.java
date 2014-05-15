@@ -50,7 +50,7 @@ public class Catalog implements Serializable, INeedTokenObj {
 		allItems = new LinkedList<>();
 	}
 	
-	public Catalog(String parentId, ICatalog catalog, User user, IUser userDB, Token token) throws SQLException {
+	public Catalog(String parentId, ICatalog catalog, IUser userDB, Token token) throws SQLException {
 		this.parentId = parentId;
 		this.catalog = catalog;
 		//this.user = user;
@@ -59,7 +59,7 @@ public class Catalog implements Serializable, INeedTokenObj {
 		this.id = catalog.getId();
 		this.token = token;
 		allSubCatalogs = new LinkedList<>();
-		loadAllSubCatalogs(user, userDB, catalog, allSubCatalogs, token);
+		loadAllSubCatalogs(userDB, catalog, allSubCatalogs, token);
 		
 		allFields = new LinkedList<>();
 		loadAllCatalogField(catalog, allFields, token);
@@ -100,7 +100,7 @@ public class Catalog implements Serializable, INeedTokenObj {
 		}
 	}
 
-	private static final void loadAllSubCatalogs(User user, IUser userDB, ICatalog catalog, List<Catalog> allSubCatalogs, Token token) throws SQLException {
+	private static final void loadAllSubCatalogs(IUser userDB, ICatalog catalog, List<Catalog> allSubCatalogs, Token token) throws SQLException {
 		IPage<ICatalog> page = catalog.getSubCatalogPagingList().setPageSize(-1).loadPage(userDB, 1);
 		if (page == null) {
 			return;
@@ -110,7 +110,7 @@ public class Catalog implements Serializable, INeedTokenObj {
 			return;
 		}
 		for (ICatalog subCatalog : subCatalogs) {
-			allSubCatalogs.add(new Catalog(catalog.getId(), subCatalog, user, userDB, token));
+			allSubCatalogs.add(new Catalog(catalog.getId(), subCatalog, userDB, token));
 		}
 	}
 
@@ -204,7 +204,7 @@ public class Catalog implements Serializable, INeedTokenObj {
 			cat.setName(updateCatalog.getName());
 			cat.getDesc().setDescription(updateCatalog.getDes());
 			this.catalog.getSubCatalogPagingList().put(userDB, cat);
-			return new Catalog(this.getId(), cat, user, userDB, token);
+			return new Catalog(this.getId(), cat, userDB, token);
 		}
 		for (Catalog catalog : allSubCatalogs) {
 			Catalog result = catalog.updateFromThisAndBelowCats(updateCatalog);
@@ -243,6 +243,13 @@ public class Catalog implements Serializable, INeedTokenObj {
 			}
 		}
 		return notFindCatalogErrorMessage;
+	}
+
+	public String getRootCatId() {
+		if (this.catalog == null) {
+			return null;
+		}
+		return this.catalog.getSystemCatalog().getId();
 	}
 	
 }

@@ -2,9 +2,16 @@ package com.jinnova.smartpad.domain;
 
 import java.io.Serializable;
 import java.sql.SQLException;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
+import org.eclipse.jetty.util.IO;
 
+import com.jinnova.smartpad.IPage;
+import com.jinnova.smartpad.IPagingList;
+import com.jinnova.smartpad.partner.IOperation;
+import com.jinnova.smartpad.partner.IOperationSort;
 import com.jinnova.smartpad.partner.IUser;
 
 public class User implements Serializable, INeedTokenObj {
@@ -20,6 +27,10 @@ public class User implements Serializable, INeedTokenObj {
 	
 	private String passwordText;
 
+	private Branch branch;
+
+	private List<Branch> allStoreList;
+
 	private Token token;
 	
 	public User() {
@@ -33,17 +44,51 @@ public class User implements Serializable, INeedTokenObj {
 
 	public Catalog getCatalog() throws SQLException {
 		//catalog = new Catalog(user.getBranch().getRootCatalog(), this, user);
-		catalog = new Catalog(null, user.getBranch().getRootCatalog(), this, user, token);
+		catalog = new Catalog(null, user.getBranch().getRootCatalog(), user, token);
 		return catalog;
 	}
 
 	public void setCatalog(Catalog catalog) {
 		this.catalog = catalog;
 	}
+
+	public Branch getBranch() throws SQLException {
+		this.branch = new Branch(user.getBranch(), user);
+		return this.branch;
+	}
 	
-	/*public IUser getUserDB() {
-		return this.user;
-	}*/
+	public List<Branch> getAllStoreList() throws SQLException {
+		this.allStoreList = new LinkedList<>();
+		IPagingList<IOperation, IOperationSort> listPStore = user.getStorePagingList();
+		listPStore.setPageSize(-1);
+		IPage<IOperation> listStore = listPStore.loadPage(user, 1);
+		if (listStore.getTotalCount() <= 0) {
+			return allStoreList;
+		}
+		for (IOperation operation : listStore.getPageEntries()) {
+			this.allStoreList.add(new Branch(operation, user));
+		}
+		return allStoreList;
+	}
+
+	// TODO CRUD allStoreList
+
+	public void updateBranch(Branch branchToUpdate) throws SQLException {
+		if (branchToUpdate == null) {
+			return;
+		}
+		/*if (branchToUpdate.isNew()) {
+			branchToUpdate.updateToDB(branchToUpdate, user);
+		}*/
+		if (this.getBranch().updateToDB(branchToUpdate, user)) {
+			return;
+		}
+		for (Branch b : this.getAllStoreList()) {
+			if (b.updateToDB(branchToUpdate, user)) {
+				return;
+			}
+		}
+	}
 	
 	public String getUserNameText() {
 		return userNameText;
