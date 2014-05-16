@@ -6,7 +6,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
-import org.eclipse.jetty.util.IO;
 
 import com.jinnova.smartpad.IPage;
 import com.jinnova.smartpad.IPagingList;
@@ -71,25 +70,29 @@ public class User implements Serializable, INeedTokenObj {
 		return allStoreList;
 	}
 
-	// TODO CRUD allStoreList
-
 	public void updateBranch(Branch branchToUpdate) throws SQLException {
 		if (branchToUpdate == null) {
 			return;
 		}
-		/*if (branchToUpdate.isNew()) {
-			branchToUpdate.updateToDB(branchToUpdate, user);
-		}*/
-		if (this.getBranch().updateToDB(branchToUpdate, user)) {
+		if (branchToUpdate.isNew()) {
+			IOperation newStoreDB = user.getStorePagingList().newEntryInstance(user);
+			Branch newBranch = new Branch(newStoreDB, user); // inherit from root branch
+			branchToUpdate.updateToDB(newBranch);
+			user.getStorePagingList().put(user, newBranch.toBranchDB());
+			return;
+		}
+		if (branchToUpdate.updateToDB(this.getBranch())) {
+			user.updateBranch();
 			return;
 		}
 		for (Branch b : this.getAllStoreList()) {
-			if (b.updateToDB(branchToUpdate, user)) {
+			if (branchToUpdate.updateToDB(b)) {
+				user.getStorePagingList().put(user, b.toBranchDB());
 				return;
 			}
 		}
 	}
-	
+
 	public String getUserNameText() {
 		return userNameText;
 	}
@@ -128,5 +131,12 @@ public class User implements Serializable, INeedTokenObj {
 	@JsonIgnore
 	public IUser toUserDB() {
 		return this.user;
+	}
+
+	public List<Branch> getAllBranchIncludeRoot() throws SQLException {
+		List<Branch> result = new LinkedList<>();
+		result.add(this.getBranch());
+		result.addAll(this.getAllStoreList());
+		return result;
 	}
 }

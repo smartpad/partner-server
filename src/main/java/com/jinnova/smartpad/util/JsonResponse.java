@@ -1,4 +1,3 @@
-// Copyright (c) 2012 Health Market Science, Inc.
 package com.jinnova.smartpad.util;
 
 import java.util.Arrays;

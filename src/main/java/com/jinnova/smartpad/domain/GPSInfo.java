@@ -25,8 +25,12 @@ public class GPSInfo implements Serializable {
 	
 	public GPSInfo(IGPSInfo gps) {
 		this.gpsInfo = gps;
-		this.latitude = this.gpsInfo.getLatitude().longValue();
-		this.longitude = this.gpsInfo.getLongitude().longValue();
+		if (this.gpsInfo != null && this.gpsInfo.getLatitude() != null) {
+			this.latitude = this.gpsInfo.getLatitude().longValue();
+		}
+		if (this.gpsInfo != null && this.gpsInfo.getLongitude() != null) {
+			this.longitude = this.gpsInfo.getLongitude().longValue();
+		}
 	}
 
 	public long getLatitude() {

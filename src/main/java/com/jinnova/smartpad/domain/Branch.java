@@ -39,6 +39,10 @@ public class Branch implements Serializable {
 
 	private String[] memberLevels;
 
+	public Branch() {
+		this.branch = null;
+	}
+	
 	public Branch(IOperation branch, IUser userDB) throws SQLException {
 		this.branch = branch;
 		this.id = branch.getId();
@@ -55,16 +59,10 @@ public class Branch implements Serializable {
 		// TODO this.allMembers = this.branch.getMemberPagingList();
 	}
 	
-	public boolean updateToDB(Branch branch, IUser userDB) throws SQLException {
+	public boolean updateToDB(Branch branch) {
 		if (branch == null || branch.getId() != this.id) {
 			return false;
 		}
-		// TODO check new
-		/*if (branch.isNew()) {
-			IOperation newStoreDB = user.getStorePagingList().newEntryInstance(user);
-			branch = new Branch(newStoreDB, userDB);
-		}*/
-		
 		IOperation operationToUpdate = branch.branch;
 		operationToUpdate.setAddressLines(addressLines);
 		operationToUpdate.setEmail(email);
@@ -78,8 +76,6 @@ public class Branch implements Serializable {
 			operationToUpdate.getGps().setLongitude(new BigDecimal(gps.getLongitude()));
 		}
 		openHours.updateToDB(operationToUpdate.getOpenHours());
-		userDB.getStorePagingList().put(userDB, operationToUpdate);
-		// TODO recheck ? userDB.updateBranch();
 		return true;
 	}
 	
@@ -167,6 +163,11 @@ public class Branch implements Serializable {
 
 	public boolean isNew() {
 		return this.id == null || this.id.trim().isEmpty();
+	}
+
+	@JsonIgnore
+	public IOperation toBranchDB() {
+		return this.branch;
 	}
 	
 }
