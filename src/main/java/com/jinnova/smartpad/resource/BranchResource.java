@@ -2,13 +2,17 @@ package com.jinnova.smartpad.resource;
 
 import java.sql.SQLException;
 
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import com.jinnova.smartpad.UserLoggedInManager;
+import com.jinnova.smartpad.domain.Branch;
+import com.jinnova.smartpad.domain.Catalog;
 import com.jinnova.smartpad.domain.User;
 import com.jinnova.smartpad.util.JsonResponse;
 
@@ -30,6 +34,48 @@ public class BranchResource {
 			return result;
 		} catch (SQLException e) {
 			return new JsonResponse(false, "Cannot load branch info: " + e.getMessage());
+		}
+	}
+	
+	@POST
+	@Path("/")
+	public JsonResponse saveBranch(final Branch updateBranch) {
+		// TODO
+		if (updateBranch == null) {
+			// TODO validate
+		}
+		// TODO validate security or logic... 
+		User user = UserLoggedInManager.instance.getUser(updateBranch.getUserName());
+		if (user == null) {
+			return new JsonResponse(false, "User not logged in!");
+		}
+		// Update catalog
+		try {
+			Branch result = user.updateBranch(updateBranch);
+			if (result == null) {
+				return new JsonResponse(false, "Cannot find or update branch: " + updateBranch.getName());
+			}
+			return new JsonResponse(true, result);
+		} catch (SQLException e) {
+			return new JsonResponse(false, "Cannot save branch info: " + e.getMessage());
+		}
+	}
+
+	@DELETE
+	@Path("/{user}/{branchId}")
+	public JsonResponse deleteBranch(@PathParam("user") String userName, @PathParam("branchId") String branchId) {
+		User user = UserLoggedInManager.instance.getUser(userName);
+		if (user == null) {
+			return new JsonResponse(false, "User not logged in!");
+		}
+		try {
+			String deleteResult = user.deleteBranch(branchId);
+			if (deleteResult != null) {
+				return new JsonResponse(false, "Cannot delete branch info: " + deleteResult);
+			}
+			return new JsonResponse(true, user.getBranch());
+		} catch (SQLException e) {
+			return new JsonResponse(false, "Cannot delete branch info: " + e.getMessage());
 		}
 	}
 }

@@ -16,6 +16,9 @@ public class Branch implements Serializable {
 	 */
 	private static final long serialVersionUID = 1304673772750531227L;
 
+	@Deprecated
+	private String userName;
+
 	@JsonIgnore
 	private final IOperation branch;
 
@@ -169,5 +172,13 @@ public class Branch implements Serializable {
 	public IOperation toBranchDB() {
 		return this.branch;
 	}
-	
+
+	@Deprecated
+	public String getUserName() {
+		return this.userName;
+	}
+
+	public void setUserName(String userName) {
+		this.userName = userName;
+	}
 }

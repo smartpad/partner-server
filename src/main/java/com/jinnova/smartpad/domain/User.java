@@ -70,27 +70,44 @@ public class User implements Serializable, INeedTokenObj {
 		return allStoreList;
 	}
 
-	public void updateBranch(Branch branchToUpdate) throws SQLException {
+	public Branch updateBranch(Branch branchToUpdate) throws SQLException {
 		if (branchToUpdate == null) {
-			return;
+			return getBranch();
 		}
 		if (branchToUpdate.isNew()) {
 			IOperation newStoreDB = user.getStorePagingList().newEntryInstance(user);
 			Branch newBranch = new Branch(newStoreDB, user); // inherit from root branch
 			branchToUpdate.updateToDB(newBranch);
 			user.getStorePagingList().put(user, newBranch.toBranchDB());
-			return;
+			return getBranch();
 		}
 		if (branchToUpdate.updateToDB(this.getBranch())) {
 			user.updateBranch();
-			return;
+			return getBranch();
 		}
 		for (Branch b : this.getAllStoreList()) {
 			if (branchToUpdate.updateToDB(b)) {
 				user.getStorePagingList().put(user, b.toBranchDB());
-				return;
+				return getBranch();
 			}
 		}
+		return getBranch();
+	}
+
+	public String deleteBranch(String branchId) throws SQLException {
+		if (branchId == null) {
+			return "Delete invalid branch";
+		}
+		if (this.allStoreList == null) {
+			return "Store list is empty now";
+		}
+		for (Branch branch : allStoreList) {
+			if (branchId.equals(branch.getId())) {
+				user.getStorePagingList().delete(user, branch.toBranchDB());
+				return null;
+			}
+		}
+		return "Can not find this branch to delete";
 	}
 
 	public String getUserNameText() {
@@ -139,4 +156,5 @@ public class User implements Serializable, INeedTokenObj {
 		result.addAll(this.getAllStoreList());
 		return result;
 	}
+
 }

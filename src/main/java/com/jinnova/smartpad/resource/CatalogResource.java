@@ -66,7 +66,6 @@ public class CatalogResource {
 		}
 		try {
 			String deleteResult = user.getCatalog().deleteSubCatalog(catalogId, user.toUserDB());
-			System.out.println("user.getCatalog().getAllSubCatalogs().size " + user.getCatalog().getAllSubCatalogs().size());
 			if (deleteResult != null) {
 				return new JsonResponse(false, "Cannot delete catalog info: " + deleteResult);
 			}

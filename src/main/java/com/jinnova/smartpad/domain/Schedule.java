@@ -1,30 +1,51 @@
 package com.jinnova.smartpad.domain;
 
 import java.io.Serializable;
+import java.util.Calendar;
 
 import com.jinnova.smartpad.partner.ISchedule;
 import com.jinnova.smartpad.partner.IScheduleSequence;
 
 public class Schedule implements Serializable{
-	
+
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 2955153867508728592L;
 
 	private String desc;
-	private ScheduleSequence[] scheduleSequences;
+	//private ScheduleSequence[] otherSequences;
 	
+	private final ScheduleSequence daily = new ScheduleSequence(Calendar.MONDAY, Calendar.TUESDAY, Calendar.WEDNESDAY, Calendar.THURSDAY, Calendar.FRIDAY);
+	private final ScheduleSequence sar = new ScheduleSequence(Calendar.SATURDAY);
+	private final ScheduleSequence sun = new ScheduleSequence(Calendar.SUNDAY);
+	private final ScheduleSequence holiday = new ScheduleSequence();// TODO generate holiday sequence from configured core data
+
 	public Schedule() {
 	}
-	
+
 	public Schedule(ISchedule schedule) {
 		this.desc = schedule.getDesc();
 		if (schedule.getScheduleSequences() != null) {
-			this.scheduleSequences = new ScheduleSequence[schedule.getScheduleSequences().length];
-			int index = 0;
+			//IScheduleSequence[] sequences = new ScheduleSequence[schedule.getScheduleSequences().length];
+			//int index = 0;
 			for (IScheduleSequence ss : schedule.getScheduleSequences()) {
-				this.scheduleSequences[index++] = new ScheduleSequence(ss);
+				//this.otherSequences[index++] = new ScheduleSequence(ss);
+				ScheduleSequence ssToUpdate = null;
+				if (daily.checkSameDays(ss.getDaysOfWeek())) {
+					ssToUpdate = daily;
+				} else if (sar.checkSameDays(ss.getDaysOfWeek())) {
+					ssToUpdate = sar;
+				} else if (sun.checkSameDays(ss.getDaysOfWeek())) {
+					ssToUpdate = sun;
+				} else if (holiday.checkSameDays(ss.getDaysOfWeek())) { // TODO check as more fields
+					ssToUpdate = holiday;
+				}
+				if (ssToUpdate == null) {
+					// TODO handle error
+				} else {
+					ssToUpdate.copyFromDB(ss);
+				}
 			}
 		}
 	}
@@ -37,29 +58,201 @@ public class Schedule implements Serializable{
 		this.desc = desc;
 	}
 
-	public ScheduleSequence[] getScheduleSequences() {
-		return scheduleSequences;
+	public ScheduleSequence getDaily() {
+		return daily;
 	}
 
-	public void setScheduleSequences(ScheduleSequence[] scheduleSequences) {
-		this.scheduleSequences = scheduleSequences;
+	public void setDaily(ScheduleSequence daily) {
+		this.daily.setHours(daily.getHours());
+		this.daily.setMinutes(daily.getMinutes());
 	}
 
+	public ScheduleSequence getSar() {
+		return sar;
+	}
+
+	public void setSar(ScheduleSequence sar) {
+		this.sar.setHours(sar.getHours());
+		this.sar.setMinutes(sar.getMinutes());
+	}
+
+	public ScheduleSequence getSun() {
+		return sun;
+	}
+
+	public void setSun(ScheduleSequence sun) {
+		this.sun.setHours(sun.getHours());
+		this.sun.setMinutes(sun.getMinutes());
+	}
+
+	public ScheduleSequence getHoliday() {
+		return holiday;
+	}
+
+	public void setHoliday(ScheduleSequence holiday) {
+		this.holiday.setHours(holiday.getHours());
+		this.holiday.setMinutes(holiday.getMinutes());
+	}
+
+	/*public ScheduleSequence[] getOtherSequences() {
+		return otherSequences;
+	}
+
+	public void setOtherSequences(ScheduleSequence[] otherSequences) {
+		this.otherSequences = otherSequences;
+	}*/
+
+	public int getDayHourFrom() {
+		return this.daily.getHourFrom();
+	}
+	
+	public void setDayHourFrom(int h) {
+		this.daily.setHourFrom(h);
+	}
+
+	public int getDayHourTo() {
+		return this.daily.getHourTo();
+	}
+	
+	public void setDayHourTo(int h) {
+		this.daily.setHourTo(h);
+	}
+
+	public int getDayMinFrom() {
+		return this.daily.getHourFrom();
+	}
+	
+	public void setDayMinFrom(int h) {
+		this.daily.setHourFrom(h);
+	}
+
+	public int getDayMinTo() {
+		return this.daily.getMinTo();
+	}
+	
+	public void setDayMinTo(int h) {
+		this.daily.setMinTo(h);
+	}
+	
+	public int getSarHourFrom() {
+		return sar.getHourFrom();
+	}
+	
+	public void setSarHourFrom(int h) {
+		this.sar.setHourFrom(h);
+	}
+
+	public int getSarMinFrom() {
+		return this.sar.getMinFrom();
+	}
+	
+	public void setSarMinFrom(int h) {
+		this.sar.setMinFrom(h);
+	}
+	
+	public int getSarHourTo() {
+		return sar.getHourTo();
+	}
+	
+	public void setSarHourTo(int h) {
+		this.sar.setHourTo(h);
+	}
+
+	public int getSarMinTo() {
+		return this.sar.getMinTo();
+	}
+	
+	public void setSarMinTo(int h) {
+		this.sar.setMinTo(h);
+	}
+	
+	public int getSunHourFrom() {
+		return this.sun.getHourFrom();
+	}
+	
+	public void setSunHourFrom(int h) {
+		this.sun.setHourFrom(h);
+	}
+
+	public int getSunHourTo() {
+		return this.sun.getHourTo();
+	}
+	
+	public void setSunHourTo(int h) {
+		this.sun.setHourTo(h);
+	}
+
+	public int getSunMinFrom() {
+		return this.sun.getMinFrom();
+	}
+	
+	public void setSunMinFrom(int h) {
+		this.sun.setMinFrom(h);
+	}
+	
+	public int getSunMinTo() {
+		return this.sun.getMinTo();
+	}
+	
+	public void setSunMinTo(int h) {
+		this.sun.setMinTo(h);
+	}
+	
+	public int getHolidayHourFrom() {
+		return this.holiday.getHourFrom();
+	}
+	
+	public void setHolidayHourFrom(int h) {
+		this.holiday.setHourFrom(h);
+	}
+
+	public int getHolidayMinFrom() {
+		return this.holiday.getMinFrom();
+	}
+	
+	public void setHolidayMinFrom(int h) {
+		this.holiday.setMinFrom(h);
+	}
+	
+	public int getHolidayHourTo() {
+		return this.holiday.getHourTo();
+	}
+	
+	public void setHolidayHourTo(int h) {
+		this.holiday.setHourTo(h);
+	}
+
+	public int getHolidayMinTo() {
+		return this.holiday.getMinTo();
+	}
+	
+	public void setHolidayMinTo(int h) {
+		this.holiday.setMinTo(h);
+	}
+	
 	public void updateToDB(ISchedule openHours) {
 		if (openHours == null) {
 			return;
 		}
 		openHours.setDesc(desc);
-		if (this.scheduleSequences != null) {
-			IScheduleSequence[] scheduleSequencesDB = new IScheduleSequence[scheduleSequences.length];
-			int index = 1;
-			for (ScheduleSequence ss : this.scheduleSequences) {
-				IScheduleSequence ssDB = openHours.newScheduleSequenceInstance();
-				ss.updateToDB(ssDB);
-				scheduleSequencesDB[index++] = ssDB;
-			}
-			openHours.setScheduleSequences(scheduleSequencesDB);
-		}
+		IScheduleSequence[] scheduleSequencesDB = new IScheduleSequence[4];
+		IScheduleSequence ssDaily = openHours.newScheduleSequenceInstance();
+		daily.updateToDB(ssDaily);
+		scheduleSequencesDB[0] = ssDaily;
+		
+		IScheduleSequence ssSar = openHours.newScheduleSequenceInstance();
+		sar.updateToDB(ssSar);
+		scheduleSequencesDB[1] = ssSar;
+		
+		IScheduleSequence ssSun = openHours.newScheduleSequenceInstance();
+		sun.updateToDB(ssSun);
+		scheduleSequencesDB[2] = ssSun;
+		
+		IScheduleSequence ho = openHours.newScheduleSequenceInstance();
+		holiday.updateToDB(ho);
+		scheduleSequencesDB[3] = ho;
+
+		openHours.setScheduleSequences(scheduleSequencesDB);
 	}
 
 }
