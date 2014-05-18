@@ -12,7 +12,6 @@ import javax.ws.rs.core.MediaType;
 
 import com.jinnova.smartpad.UserLoggedInManager;
 import com.jinnova.smartpad.domain.Branch;
-import com.jinnova.smartpad.domain.Catalog;
 import com.jinnova.smartpad.domain.User;
 import com.jinnova.smartpad.util.JsonResponse;
 
@@ -28,13 +27,17 @@ public class BranchResource {
 			return new JsonResponse(false, "User not logged in!");
 		}
 		try {
-			JsonResponse result = new JsonResponse(true);
-			result.put("rootBranch", user.getBranch());
-			result.put("allStores", user.getAllStoreList());
-			return result;
+			return getBranch(user);
 		} catch (SQLException e) {
 			return new JsonResponse(false, "Cannot load branch info: " + e.getMessage());
 		}
+	}
+	
+	private static final JsonResponse getBranch(User user) throws SQLException {
+		JsonResponse result = new JsonResponse(true);
+		result.put("rootBranch", user.getBranch());
+		result.put("allStores", user.getAllStoreList());
+		return result;
 	}
 	
 	@POST
@@ -49,13 +52,13 @@ public class BranchResource {
 		if (user == null) {
 			return new JsonResponse(false, "User not logged in!");
 		}
-		// Update catalog
+		// Update branch
 		try {
 			Branch result = user.updateBranch(updateBranch);
 			if (result == null) {
 				return new JsonResponse(false, "Cannot find or update branch: " + updateBranch.getName());
 			}
-			return new JsonResponse(true, result);
+			return getBranch(user);
 		} catch (SQLException e) {
 			return new JsonResponse(false, "Cannot save branch info: " + e.getMessage());
 		}

@@ -42,6 +42,8 @@ public class Catalog implements Serializable, INeedTokenObj {
 	private Token token;
 	
 	private String parentId;
+
+	private String rootCatId;
 	
 	public Catalog() {
 		this.catalog = null;
@@ -54,6 +56,7 @@ public class Catalog implements Serializable, INeedTokenObj {
 		this.parentId = parentId;
 		this.catalog = catalog;
 		//this.user = user;
+		this.rootCatId = this.catalog.getSystemCatalog().getId();
 		this.name = catalog.getName();
 		this.des = catalog.getDesc().getDescription();
 		this.id = catalog.getId();
@@ -246,10 +249,10 @@ public class Catalog implements Serializable, INeedTokenObj {
 	}
 
 	public String getRootCatId() {
-		if (this.catalog == null) {
-			return null;
-		}
-		return this.catalog.getSystemCatalog().getId();
+		return this.rootCatId;
 	}
 	
+	public void setRootCatId(String rootCatId) {
+		this.rootCatId = rootCatId;
+	}
 }

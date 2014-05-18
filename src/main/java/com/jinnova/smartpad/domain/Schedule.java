@@ -20,7 +20,7 @@ public class Schedule implements Serializable{
 	private final ScheduleSequence sar = new ScheduleSequence(Calendar.SATURDAY);
 	private final ScheduleSequence sun = new ScheduleSequence(Calendar.SUNDAY);
 	private final ScheduleSequence holiday = new ScheduleSequence();// TODO generate holiday sequence from configured core data
-
+	
 	public Schedule() {
 	}
 
@@ -102,11 +102,83 @@ public class Schedule implements Serializable{
 		this.otherSequences = otherSequences;
 	}*/
 
-	public int getDayHourFrom() {
+	public RangeValue getDailyHour() {
+		return new RangeValue(daily.getHourFrom(), daily.getHourTo());
+	}
+
+	public void setDailyHour(RangeValue rv) throws InvalidParamerFromUserException {
+		this.daily.updateHourFrom(rv.getFromValue());
+		this.daily.updateHourTo(rv.getToValue());
+	}
+
+	public RangeValue getSarHour() {
+		return new RangeValue(sar.getHourFrom(), sar.getHourTo());
+	}
+
+	public void setSarHour(RangeValue rv) throws InvalidParamerFromUserException {
+		this.sar.updateHourFrom(rv.getFromValue());
+		this.sar.updateHourTo(rv.getToValue());
+	}
+
+	public RangeValue getSunHour() {
+		return new RangeValue(sun.getHourFrom(), sun.getHourTo());
+	}
+
+	public void setSunHour(RangeValue rv) throws InvalidParamerFromUserException {
+		this.sun.updateHourFrom(rv.getFromValue());
+		this.sun.updateHourTo(rv.getToValue());
+	}
+
+	public RangeValue getHolidayHour() {
+		return new RangeValue(holiday.getHourFrom(), holiday.getHourTo());
+	}
+
+	public void setHolidayHour(RangeValue rv) throws InvalidParamerFromUserException {
+		this.holiday.updateHourFrom(rv.getFromValue());
+		this.holiday.updateHourTo(rv.getToValue());
+	}
+
+	public RangeValue getDailyMin() {
+		return new RangeValue(daily.getMinFrom(), daily.getMinTo());
+	}
+
+	public void setDailyMin(RangeValue rv) throws InvalidParamerFromUserException {
+		this.daily.updateMinFrom(rv.getFromValue());
+		this.daily.updateMinTo(rv.getToValue());
+	}
+
+	public RangeValue getSarMin() {
+		return new RangeValue(sar.getMinFrom(), sar.getMinTo());
+	}
+
+	public void setSarMin(RangeValue rv) throws InvalidParamerFromUserException {
+		this.sar.updateMinFrom(rv.getFromValue());
+		this.sar.updateMinTo(rv.getToValue());
+	}
+
+	public RangeValue getSunMin() {
+		return new RangeValue(sun.getMinFrom(), sun.getMinTo());
+	}
+
+	public void setSunMin(RangeValue rv) throws InvalidParamerFromUserException {
+		this.sun.updateMinFrom(rv.getFromValue());
+		this.sun.updateMinTo(rv.getToValue());
+	}
+
+	public RangeValue getHolidayMin() {
+		return new RangeValue(holiday.getMinFrom(), holiday.getMinTo());
+	}
+
+	public void setHolidayMin(RangeValue rv) throws InvalidParamerFromUserException {
+		this.holiday.updateMinFrom(rv.getFromValue());
+		this.holiday.updateMinTo(rv.getToValue());
+	}
+
+	/*public int getDayHourFrom() {
 		return this.daily.getHourFrom();
 	}
 	
-	public void setDayHourFrom(int h) {
+	public void setDayHourFrom(int h) throws InvalidParamerFromUserException {
 		this.daily.setHourFrom(h);
 	}
 
@@ -114,23 +186,23 @@ public class Schedule implements Serializable{
 		return this.daily.getHourTo();
 	}
 	
-	public void setDayHourTo(int h) {
+	public void setDayHourTo(int h) throws InvalidParamerFromUserException {
 		this.daily.setHourTo(h);
 	}
 
 	public int getDayMinFrom() {
-		return this.daily.getHourFrom();
+		return this.daily.getMinFrom();
 	}
 	
-	public void setDayMinFrom(int h) {
-		this.daily.setHourFrom(h);
+	public void setDayMinFrom(int h) throws InvalidParamerFromUserException {
+		this.daily.setMinFrom(h);
 	}
 
 	public int getDayMinTo() {
 		return this.daily.getMinTo();
 	}
 	
-	public void setDayMinTo(int h) {
+	public void setDayMinTo(int h) throws InvalidParamerFromUserException {
 		this.daily.setMinTo(h);
 	}
 	
@@ -138,7 +210,7 @@ public class Schedule implements Serializable{
 		return sar.getHourFrom();
 	}
 	
-	public void setSarHourFrom(int h) {
+	public void setSarHourFrom(int h) throws InvalidParamerFromUserException {
 		this.sar.setHourFrom(h);
 	}
 
@@ -146,7 +218,7 @@ public class Schedule implements Serializable{
 		return this.sar.getMinFrom();
 	}
 	
-	public void setSarMinFrom(int h) {
+	public void setSarMinFrom(int h) throws InvalidParamerFromUserException {
 		this.sar.setMinFrom(h);
 	}
 	
@@ -154,7 +226,7 @@ public class Schedule implements Serializable{
 		return sar.getHourTo();
 	}
 	
-	public void setSarHourTo(int h) {
+	public void setSarHourTo(int h) throws InvalidParamerFromUserException {
 		this.sar.setHourTo(h);
 	}
 
@@ -162,7 +234,7 @@ public class Schedule implements Serializable{
 		return this.sar.getMinTo();
 	}
 	
-	public void setSarMinTo(int h) {
+	public void setSarMinTo(int h) throws InvalidParamerFromUserException {
 		this.sar.setMinTo(h);
 	}
 	
@@ -170,7 +242,7 @@ public class Schedule implements Serializable{
 		return this.sun.getHourFrom();
 	}
 	
-	public void setSunHourFrom(int h) {
+	public void setSunHourFrom(int h) throws InvalidParamerFromUserException {
 		this.sun.setHourFrom(h);
 	}
 
@@ -178,7 +250,7 @@ public class Schedule implements Serializable{
 		return this.sun.getHourTo();
 	}
 	
-	public void setSunHourTo(int h) {
+	public void setSunHourTo(int h) throws InvalidParamerFromUserException {
 		this.sun.setHourTo(h);
 	}
 
@@ -186,7 +258,7 @@ public class Schedule implements Serializable{
 		return this.sun.getMinFrom();
 	}
 	
-	public void setSunMinFrom(int h) {
+	public void setSunMinFrom(int h) throws InvalidParamerFromUserException {
 		this.sun.setMinFrom(h);
 	}
 	
@@ -194,7 +266,7 @@ public class Schedule implements Serializable{
 		return this.sun.getMinTo();
 	}
 	
-	public void setSunMinTo(int h) {
+	public void setSunMinTo(int h) throws InvalidParamerFromUserException {
 		this.sun.setMinTo(h);
 	}
 	
@@ -202,7 +274,7 @@ public class Schedule implements Serializable{
 		return this.holiday.getHourFrom();
 	}
 	
-	public void setHolidayHourFrom(int h) {
+	public void setHolidayHourFrom(int h) throws InvalidParamerFromUserException {
 		this.holiday.setHourFrom(h);
 	}
 
@@ -210,7 +282,7 @@ public class Schedule implements Serializable{
 		return this.holiday.getMinFrom();
 	}
 	
-	public void setHolidayMinFrom(int h) {
+	public void setHolidayMinFrom(int h) throws InvalidParamerFromUserException {
 		this.holiday.setMinFrom(h);
 	}
 	
@@ -218,7 +290,7 @@ public class Schedule implements Serializable{
 		return this.holiday.getHourTo();
 	}
 	
-	public void setHolidayHourTo(int h) {
+	public void setHolidayHourTo(int h) throws InvalidParamerFromUserException {
 		this.holiday.setHourTo(h);
 	}
 
@@ -226,9 +298,9 @@ public class Schedule implements Serializable{
 		return this.holiday.getMinTo();
 	}
 	
-	public void setHolidayMinTo(int h) {
+	public void setHolidayMinTo(int h) throws InvalidParamerFromUserException {
 		this.holiday.setMinTo(h);
-	}
+	}*/
 	
 	public void updateToDB(ISchedule openHours) {
 		if (openHours == null) {
