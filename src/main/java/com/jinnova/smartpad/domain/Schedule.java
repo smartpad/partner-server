@@ -19,7 +19,7 @@ public class Schedule implements Serializable{
 	private final ScheduleSequence daily = new ScheduleSequence(Calendar.MONDAY, Calendar.TUESDAY, Calendar.WEDNESDAY, Calendar.THURSDAY, Calendar.FRIDAY);
 	private final ScheduleSequence sar = new ScheduleSequence(Calendar.SATURDAY);
 	private final ScheduleSequence sun = new ScheduleSequence(Calendar.SUNDAY);
-	private final ScheduleSequence holiday = new ScheduleSequence();// TODO generate holiday sequence from configured core data
+	private final ScheduleSequence holiday = new ScheduleSequence(-1);
 	
 	public Schedule() {
 	}
