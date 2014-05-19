@@ -8,10 +8,12 @@ import java.util.List;
 import org.codehaus.jackson.annotate.JsonIgnore;
 
 import com.jinnova.smartpad.IPage;
+import com.jinnova.smartpad.IPagingList;
 import com.jinnova.smartpad.UserLoggedInManager;
 import com.jinnova.smartpad.partner.ICatalog;
 import com.jinnova.smartpad.partner.ICatalogField;
 import com.jinnova.smartpad.partner.ICatalogItem;
+import com.jinnova.smartpad.partner.ICatalogItemSort;
 import com.jinnova.smartpad.partner.IUser;
 
 public class Catalog implements Serializable, INeedTokenObj {
@@ -56,7 +58,10 @@ public class Catalog implements Serializable, INeedTokenObj {
 		this.parentId = parentId;
 		this.catalog = catalog;
 		//this.user = user;
-		this.rootCatId = this.catalog.getSystemCatalog().getId();
+		ICatalog sysCat = this.catalog.getSystemCatalog();
+		if (sysCat != null) {
+			this.rootCatId = sysCat.getId();
+		}
 		this.name = catalog.getName();
 		this.des = catalog.getDesc().getDescription();
 		this.id = catalog.getId();
@@ -80,7 +85,13 @@ public class Catalog implements Serializable, INeedTokenObj {
 			allFields.add(new CatalogField(ICatalogField.ID_NAME, "Name", ICatalogFieldType.Text_Name.name()));
 			return;
 		}*/
-		ICatalogField[] allFieldRoot = catalog.getSystemCatalog().getCatalogSpec().getAllFields();
+		ICatalogField[] allFieldRoot = null;
+		ICatalog sysCat = catalog.getSystemCatalog();
+		if (sysCat == null) {
+			allFieldRoot = catalog.getCatalogSpec().getAllFields();
+		} else {
+			allFieldRoot = sysCat.getCatalogSpec().getAllFields();
+		}
 		if (allFieldRoot == null) {
 			return;
 		}
@@ -90,7 +101,14 @@ public class Catalog implements Serializable, INeedTokenObj {
 	}
 
 	private static final void loadAllCatalogItem(IUser user, ICatalog catalog, List<CatalogField> allFields, List<CatalogItem> allItems, Token token) throws SQLException {
-		IPage<ICatalogItem> page = catalog.getCatalogItemPagingList().setPageSize(-1).loadPage(user, 1);
+		if (catalog.getSystemCatalog() == null) {
+			return; // TODO BUG getCatalogItem from sysCat may cause nullpointer
+		}
+		IPagingList<ICatalogItem, ICatalogItemSort> paging = catalog.getCatalogItemPagingList();
+		if (paging == null) {
+			return;
+		}
+		IPage<ICatalogItem> page = paging.setPageSize(-1).loadPage(user, 1);
 		if (page == null) {
 			return;
 		}
@@ -219,7 +237,8 @@ public class Catalog implements Serializable, INeedTokenObj {
 	}
 
 	public String deleteSubCatalog(String catalogId, IUser user) throws SQLException {
-		if (this.catalog.getSystemCatalog().getId().equals(catalogId)) {
+		ICatalog sysCat = this.catalog.getSystemCatalog();
+		if (sysCat == null || sysCat.getId().equals(catalogId)) {
 			return "Cannot delete root catalog";
 		}
 		String deleteFromSubCats = deleteSubCatalog(this.catalog, catalogId, user, this.allSubCatalogs);

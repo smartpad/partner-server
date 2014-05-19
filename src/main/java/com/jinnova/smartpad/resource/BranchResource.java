@@ -12,7 +12,9 @@ import javax.ws.rs.core.MediaType;
 
 import com.jinnova.smartpad.UserLoggedInManager;
 import com.jinnova.smartpad.domain.Branch;
+import com.jinnova.smartpad.domain.Catalog;
 import com.jinnova.smartpad.domain.User;
+import com.jinnova.smartpad.partner.PartnerManager;
 import com.jinnova.smartpad.util.JsonResponse;
 
 @Path("/branch")
@@ -27,16 +29,19 @@ public class BranchResource {
 			return new JsonResponse(false, "User not logged in!");
 		}
 		try {
-			return getBranch(user);
+			return getBranch(user, true);
 		} catch (SQLException e) {
 			return new JsonResponse(false, "Cannot load branch info: " + e.getMessage());
 		}
 	}
 	
-	private static final JsonResponse getBranch(User user) throws SQLException {
+	private static final JsonResponse getBranch(User user, boolean getSysCat) throws SQLException {
 		JsonResponse result = new JsonResponse(true);
 		result.put("rootBranch", user.getBranch());
 		result.put("allStores", user.getAllStoreList());
+		if (getSysCat) {
+			result.put("sysCat", new Catalog(null, PartnerManager.instance.getSystemRootCatalog(), user.toUserDB(), user.getToken()));
+		}
 		return result;
 	}
 	
@@ -58,7 +63,7 @@ public class BranchResource {
 			if (result == null) {
 				return new JsonResponse(false, "Cannot find or update branch: " + updateBranch.getName());
 			}
-			return getBranch(user);
+			return getBranch(user, false);
 		} catch (SQLException e) {
 			return new JsonResponse(false, "Cannot save branch info: " + e.getMessage());
 		}

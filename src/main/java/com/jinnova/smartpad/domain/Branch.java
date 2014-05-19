@@ -49,11 +49,7 @@ public class Branch implements Serializable {
 	public Branch(IOperation branch, IUser userDB) throws SQLException {
 		this.branch = branch;
 		this.id = branch.getId();
-		try {
 		this.rootCatalog = new Catalog(null, branch.getRootCatalog(), userDB, null);
-		} catch (NullPointerException e) {
-			System.out.println(e);
-		}
 		this.addressLines = branch.getAddressLines();
 		this.desc = branch.getDesc().getDescription();
 		this.name = branch.getName();
