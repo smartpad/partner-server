@@ -159,13 +159,15 @@ public class User implements Serializable, INeedTokenObj {
 		return result;
 	}
 
-	public Catalog updateCatalogItem(CatalogItem updateCatalogItem, String catalogId, String sysCatalogId) throws SQLException {
-		if (catalogId != null && !catalogId.isEmpty()) {
+	public Catalog updateCatalogItem(CatalogItem updateCatalogItem, String catalogId, boolean sysCatalogId) throws SQLException {
+		if (catalogId == null) {
+			return null;
+		}
+		if (!sysCatalogId) {
 			getCatalog().updateItem(catalogId, updateCatalogItem, user);
 			return getCatalog();
-		}
-		if (sysCatalogId != null && !sysCatalogId.isEmpty()) {
-			ICatalog sysCat = PartnerManager.instance.getSystemCatalog(sysCatalogId);
+		} else {
+			ICatalog sysCat = PartnerManager.instance.getSystemCatalog(catalogId);
 			if (sysCat == null) {
 				return null; // TODO throw exception ?
 			}
@@ -173,16 +175,17 @@ public class User implements Serializable, INeedTokenObj {
 			new Catalog(null, sysCat, user, token).updateItem(null, updateCatalogItem, user);
 			return new Catalog(null, sysCat, user, token);
 		}
-		return null;
 	}
 
-	public Catalog deleteCatItem(String catalogItemId, String catalogId, String sysCatalogId, IUser userDB) throws SQLException {
-		if (catalogId != null && !catalogId.isEmpty()) {
+	public Catalog deleteCatItem(String catalogItemId, String catalogId, boolean sysCatalogId, IUser userDB) throws SQLException {
+		if (catalogId == null) {
+			return null;
+		}
+		if (!sysCatalogId) {
 			getCatalog().deleteCatItem(catalogId, catalogItemId, user);
 			return getCatalog();
-		}
-		if (sysCatalogId != null && !sysCatalogId.isEmpty()) {
-			ICatalog sysCat = PartnerManager.instance.getSystemCatalog(sysCatalogId);
+		} else {
+			ICatalog sysCat = PartnerManager.instance.getSystemCatalog(catalogId);
 			if (sysCat == null) {
 				return null; // TODO throw exception ?
 			}
@@ -190,7 +193,6 @@ public class User implements Serializable, INeedTokenObj {
 			new Catalog(null, sysCat, user, token).deleteCatItem(null, catalogItemId, user);
 			return new Catalog(null, sysCat, user, token);
 		}
-		return null;
 	}
 
 }

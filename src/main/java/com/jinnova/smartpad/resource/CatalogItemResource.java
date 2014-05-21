@@ -36,8 +36,18 @@ public class CatalogItemResource {
 	}*/
 
 	@POST
-	@Path("/{user}/{catalogId}")
-	public JsonResponse saveCatalogItem(@PathParam("user") String userName, final CatalogItem updateCatalogItem, @PathParam("catalogId") String catalogId, @QueryParam("sysCatalogId") String sysCatalogId) {
+	@Path("/{user}/{catalogId}/true")
+	public JsonResponse saveSysCatalogItem(@PathParam("user") String userName, final CatalogItem updateCatalogItem, @PathParam("catalogId") String catalogId) {
+		return saveCatalogItemInternal(userName, updateCatalogItem, catalogId, true);
+	}
+
+	@POST
+	@Path("/{user}/{catalogId}/false")
+	public JsonResponse saveCatalogItem(@PathParam("user") String userName, final CatalogItem updateCatalogItem, @PathParam("catalogId") String catalogId) {
+		return saveCatalogItemInternal(userName, updateCatalogItem, catalogId, false);
+	}
+
+	private static final JsonResponse saveCatalogItemInternal(String userName, final CatalogItem updateCatalogItem, String catalogId, boolean isSys) {
 		// TODO
 		if (updateCatalogItem == null) {
 			// TODO validate
@@ -49,7 +59,7 @@ public class CatalogItemResource {
 		}
 		// Update catalog
 		try {
-			Catalog updatedCatalogResult = user.updateCatalogItem(updateCatalogItem, catalogId, sysCatalogId);
+			Catalog updatedCatalogResult = user.updateCatalogItem(updateCatalogItem, catalogId, isSys);
 			if (updatedCatalogResult == null) {
 				return new JsonResponse(false, "Cannot find or update catalog item: " + updateCatalogItem.getValuesSingle().get(ICatalogField.F_NAME));
 			}
@@ -61,7 +71,7 @@ public class CatalogItemResource {
 
 	@DELETE
 	@Path("/{user}/{catalogItemId}/{catalogId}")
-	public JsonResponse deleteCatalog(@PathParam("user") String userName, @PathParam("catalogItemId") String catalogItemId, @PathParam("catalogId") String catalogId, @QueryParam("sysCatalogId") String sysCatalogId) {
+	public JsonResponse deleteCatalog(@PathParam("user") String userName, @PathParam("catalogItemId") String catalogItemId, @PathParam("catalogId") String catalogId, @QueryParam("sysCatalogItemId") Boolean sysCatalogId) {
 		User user = UserLoggedInManager.instance.getUser(userName);
 		if (user == null) {
 			return new JsonResponse(false, "User not logged in!");

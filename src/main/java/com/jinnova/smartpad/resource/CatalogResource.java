@@ -13,6 +13,7 @@ import javax.ws.rs.core.MediaType;
 import com.jinnova.smartpad.UserLoggedInManager;
 import com.jinnova.smartpad.domain.Catalog;
 import com.jinnova.smartpad.domain.User;
+import com.jinnova.smartpad.partner.PartnerManager;
 import com.jinnova.smartpad.util.JsonResponse;
 
 @Path("/catalog")
@@ -20,14 +21,28 @@ import com.jinnova.smartpad.util.JsonResponse;
 public class CatalogResource {
 
 	@GET
-	@Path("/{user}")//{catalogId}
-    public JsonResponse getCatalog(/*@PathParam("catalogId") String catalogId, @QueryParam*/ @PathParam("user") String userName) {
+	@Path("/{user}")
+    public JsonResponse getCatalog(@PathParam("user") String userName) {
 		User user = UserLoggedInManager.instance.getUser(userName);
 		if (user == null) {
 			return new JsonResponse(false, "User not logged in!");
 		}
 		try {
 			return new JsonResponse(true, user.getCatalog());
+		} catch (SQLException e) {
+			return new JsonResponse(false, "Cannot load catalog info: " + e.getMessage());
+		}
+	}
+
+	@GET
+	@Path("/sys/{user}")
+    public JsonResponse getSysCatalog(@PathParam("user") String userName) {
+		User user = UserLoggedInManager.instance.getUser(userName);
+		if (user == null) {
+			return new JsonResponse(false, "User not logged in!");
+		}
+		try {
+			return new JsonResponse(true, new Catalog(null, PartnerManager.instance.getSystemRootCatalog(), user.toUserDB(), user.getToken()));
 		} catch (SQLException e) {
 			return new JsonResponse(false, "Cannot load catalog info: " + e.getMessage());
 		}
