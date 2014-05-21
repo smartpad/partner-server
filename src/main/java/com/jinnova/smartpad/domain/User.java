@@ -9,9 +9,11 @@ import org.codehaus.jackson.annotate.JsonIgnore;
 
 import com.jinnova.smartpad.IPage;
 import com.jinnova.smartpad.IPagingList;
+import com.jinnova.smartpad.partner.ICatalog;
 import com.jinnova.smartpad.partner.IOperation;
 import com.jinnova.smartpad.partner.IOperationSort;
 import com.jinnova.smartpad.partner.IUser;
+import com.jinnova.smartpad.partner.PartnerManager;
 
 public class User implements Serializable, INeedTokenObj {
 	
@@ -155,6 +157,40 @@ public class User implements Serializable, INeedTokenObj {
 		result.add(this.getBranch());
 		result.addAll(this.getAllStoreList());
 		return result;
+	}
+
+	public Catalog updateCatalogItem(CatalogItem updateCatalogItem, String catalogId, String sysCatalogId) throws SQLException {
+		if (catalogId != null && !catalogId.isEmpty()) {
+			getCatalog().updateItem(catalogId, updateCatalogItem, user);
+			return getCatalog();
+		}
+		if (sysCatalogId != null && !sysCatalogId.isEmpty()) {
+			ICatalog sysCat = PartnerManager.instance.getSystemCatalog(sysCatalogId);
+			if (sysCat == null) {
+				return null; // TODO throw exception ?
+			}
+			// TODO handle page loaded from syscat not new catalog that load all catItem
+			new Catalog(null, sysCat, user, token).updateItem(null, updateCatalogItem, user);
+			return new Catalog(null, sysCat, user, token);
+		}
+		return null;
+	}
+
+	public Catalog deleteCatItem(String catalogItemId, String catalogId, String sysCatalogId, IUser userDB) throws SQLException {
+		if (catalogId != null && !catalogId.isEmpty()) {
+			getCatalog().deleteCatItem(catalogId, catalogItemId, user);
+			return getCatalog();
+		}
+		if (sysCatalogId != null && !sysCatalogId.isEmpty()) {
+			ICatalog sysCat = PartnerManager.instance.getSystemCatalog(sysCatalogId);
+			if (sysCat == null) {
+				return null; // TODO throw exception ?
+			}
+			// TODO handle page loaded from syscat not new catalog that load all catItem
+			new Catalog(null, sysCat, user, token).deleteCatItem(null, catalogItemId, user);
+			return new Catalog(null, sysCat, user, token);
+		}
+		return null;
 	}
 
 }

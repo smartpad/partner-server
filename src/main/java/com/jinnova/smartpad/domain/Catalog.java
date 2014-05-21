@@ -274,4 +274,52 @@ public class Catalog implements Serializable, INeedTokenObj {
 	public void setRootCatId(String rootCatId) {
 		this.rootCatId = rootCatId;
 	}
+
+	public boolean updateItem(String catalogId, CatalogItem updateCatalogItem, IUser userDB) throws SQLException {
+		if (catalogId == null || this.id.equals(catalogId)) {
+			if (updateCatalogItem.getId() != null) {
+				for (CatalogItem itemLoaded : allItems) {
+					ICatalogItem itemDB = itemLoaded.toItemDB();
+					if (updateCatalogItem.updateToDB(itemDB)) {
+						catalog.getCatalogItemPagingList().put(userDB, itemDB);
+						break;
+					}
+				}
+			} else {
+				ICatalogItem newItem = catalog.getCatalogItemPagingList().newEntryInstance(userDB);
+				updateCatalogItem.updateToDB(newItem);
+				catalog.getCatalogItemPagingList().put(userDB, newItem);
+			}
+			return true;
+		} else {
+			for (Catalog subCat : allSubCatalogs) {
+				if (subCat.updateItem(catalogId, updateCatalogItem, userDB)) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	public boolean deleteCatItem(String catalogId, String catalogItemId, IUser user) throws SQLException {
+		if (catalogItemId == null) {
+			return false;
+		}
+		if (catalogId == null || this.id.equals(catalogId)) {
+			for (CatalogItem itemLoaded : allItems) {
+				if (itemLoaded.getId().equals(catalogItemId)) {
+					this.catalog.getCatalogItemPagingList().delete(user, itemLoaded.toItemDB());
+					break;
+				}
+			}
+			return true;
+		} else {
+			for (Catalog subCat : allSubCatalogs) {
+				if (subCat.deleteCatItem(catalogId, catalogItemId, user)) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
 }
