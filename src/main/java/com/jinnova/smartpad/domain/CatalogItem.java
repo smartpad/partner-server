@@ -20,17 +20,26 @@ public class CatalogItem implements Serializable, INeedTokenObj {
 
 	private Token token;
 
+	private String branchName;
+
+	private GPSInfo gps;
+
+	private String id;
+
 	/*@JsonIgnore
 	private ICatalogItem item;*/
-	
+
 	public CatalogItem() {
 	}
-	
+
 	public CatalogItem(ICatalogItem item, List<CatalogField> allFields, Token token) {
 		//this.item = item;
 		this.valuesSingle = new HashMap<>();
 		this.valuesMulti = new HashMap<>();
 		this.token = token;
+		this.branchName = item.getBranchName();
+		this.gps = new GPSInfo(item.getGps());
+		this.id = item.getId();
 		if (allFields != null) {
 			for (CatalogField field : allFields) {
 				valuesSingle.put(field.getId(), item.getFieldValue(field.getId()));
@@ -38,7 +47,7 @@ public class CatalogItem implements Serializable, INeedTokenObj {
 			}
 		}
 	}
-	
+
 	public Map<String, String> getValuesSingle() {
 		return this.valuesSingle;
 	}
@@ -55,9 +64,37 @@ public class CatalogItem implements Serializable, INeedTokenObj {
 		this.valuesMulti = valuesMulti;
 	}
 
+	public String getBranchName() {
+		return branchName;
+	}
+
+	public void setBranchName(String branchName) {
+		this.branchName = branchName;
+	}
+
+	public GPSInfo getGps() {
+		return gps;
+	}
+
+	public void setGps(GPSInfo gps) {
+		this.gps = gps;
+	}
+
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
+
+	public void setToken(Token token) {
+		this.token = token;
+	}
+
 	@Override
 	public IToken getToken() {
 		return token;
 	}
-	
+
 }
