@@ -34,6 +34,8 @@ public class User implements Serializable, INeedTokenObj {
 
 	private Token token;
 	
+	private Paging itemPaging;
+
 	public User() {
 	}
 	
@@ -132,6 +134,10 @@ public class User implements Serializable, INeedTokenObj {
 		return token;
 	}
 
+	public Paging getItemPaging() {
+		return itemPaging;
+	}
+
 	public Catalog updateCatalog(Catalog updateCatalog) throws SQLException {
 		if (updateCatalog == null) {
 			return null;
@@ -159,12 +165,28 @@ public class User implements Serializable, INeedTokenObj {
 		return result;
 	}
 
+	public List<CatalogItem> loadItemByPaging(String catId, boolean sysCatalogId, Paging itemPaging) throws SQLException {
+		this.itemPaging = itemPaging;
+		Catalog catToLoad = null;
+		if (!sysCatalogId) {
+			catToLoad = getCatalog();
+		} else {
+			ICatalog sysCat = PartnerManager.instance.getSystemCatalog(catId);
+			if (sysCat == null) {
+				return null; // TODO throw exception ?
+			}
+			// TODO handle page loaded from syscat not new catalog that load all catItem
+			catToLoad = new Catalog(null, sysCat, user, token);
+		}
+		return catToLoad.loadItem(catId, itemPaging, this.user);
+	}
+
 	public Catalog updateCatalogItem(CatalogItem updateCatalogItem, String catalogId, boolean sysCatalogId) throws SQLException {
 		if (catalogId == null) {
 			return null;
 		}
 		if (!sysCatalogId) {
-			getCatalog().updateItem(catalogId, updateCatalogItem, user);
+			getCatalog().updateItem(catalogId, itemPaging, updateCatalogItem, user);
 			return getCatalog();
 		} else {
 			ICatalog sysCat = PartnerManager.instance.getSystemCatalog(catalogId);
@@ -172,7 +194,7 @@ public class User implements Serializable, INeedTokenObj {
 				return null; // TODO throw exception ?
 			}
 			// TODO handle page loaded from syscat not new catalog that load all catItem
-			new Catalog(null, sysCat, user, token).updateItem(null, updateCatalogItem, user);
+			new Catalog(null, sysCat, user, token).updateItem(null, itemPaging, updateCatalogItem, user);
 			return new Catalog(null, sysCat, user, token);
 		}
 	}
@@ -182,16 +204,18 @@ public class User implements Serializable, INeedTokenObj {
 			return null;
 		}
 		if (!sysCatalogId) {
-			getCatalog().deleteCatItem(catalogId, catalogItemId, user);
+			getCatalog();
+			//this.catalog.loadItem(catalogId, itemPaging, userDB);
+			this.catalog.deleteCatItem(catalogId, itemPaging, catalogItemId, user);
 			return getCatalog();
 		} else {
-			ICatalog sysCat = PartnerManager.instance.getSystemCatalog(catalogId);
-			if (sysCat == null) {
+			ICatalog sysCatDb = PartnerManager.instance.getSystemCatalog(catalogId);
+			if (sysCatDb == null) {
 				return null; // TODO throw exception ?
 			}
 			// TODO handle page loaded from syscat not new catalog that load all catItem
-			new Catalog(null, sysCat, user, token).deleteCatItem(null, catalogItemId, user);
-			return new Catalog(null, sysCat, user, token);
+			new Catalog(null, sysCatDb, user, token).deleteCatItem(null, itemPaging, catalogItemId, user);
+			return new Catalog(null, sysCatDb, user, token);
 		}
 	}
 

@@ -7,7 +7,6 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 import com.jinnova.smartpad.UserLoggedInManager;
@@ -20,20 +19,6 @@ import com.jinnova.smartpad.util.JsonResponse;
 @Path("/catalogItem")
 @Produces(MediaType.APPLICATION_JSON)
 public class CatalogItemResource {
-
-	/*@GET
-	@Path("/{user}")//{catalogId}
-    public JsonResponse getCatalogItem(@PathParam("user") String userName) {
-		User user = UserLoggedInManager.instance.getUser(userName);
-		if (user == null) {
-			return new JsonResponse(false, "User not logged in!");
-		}
-		try {
-			return new JsonResponse(true, user.getCatalog().getAllItems());
-		} catch (SQLException e) {
-			return new JsonResponse(false, "Cannot load catalog item info: " + e.getMessage());
-		}
-	}*/
 
 	@POST
 	@Path("/{user}/{catalogId}/true")
@@ -70,8 +55,8 @@ public class CatalogItemResource {
 	}
 
 	@DELETE
-	@Path("/{user}/{catalogItemId}/{catalogId}")
-	public JsonResponse deleteCatalog(@PathParam("user") String userName, @PathParam("catalogItemId") String catalogItemId, @PathParam("catalogId") String catalogId, @QueryParam("sysCatalogItemId") Boolean sysCatalogId) {
+	@Path("/{user}/{catalogItemId}/{catalogId}/{sysCatalogItemId}")
+	public JsonResponse deleteCatalog(@PathParam("user") String userName, @PathParam("catalogItemId") String catalogItemId, @PathParam("catalogId") String catalogId, @PathParam("sysCatalogItemId") Boolean sysCatalogId) {
 		User user = UserLoggedInManager.instance.getUser(userName);
 		if (user == null) {
 			return new JsonResponse(false, "User not logged in!");

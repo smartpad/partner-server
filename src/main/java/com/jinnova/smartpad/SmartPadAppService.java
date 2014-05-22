@@ -42,7 +42,7 @@ public class SmartPadAppService extends Service<SmartPadConfiguration> {
         environment.addResource(new CatalogResource());
         environment.addResource(new BranchResource());
         environment.addResource(new CatalogItemResource());
-        SmartpadCommon.initialize("localhost", null, "smartpad", "root", "root", "", "");
+        SmartpadCommon.initialize("localhost", null, "smartpad", "root", "", "", "");
         UserLoggedInManager.initialize();
     }
 

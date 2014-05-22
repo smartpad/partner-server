@@ -32,7 +32,6 @@ public class Catalog implements Serializable, INeedTokenObj {
 	private List<Catalog> allSubCatalogs;
 	
 	private List<CatalogItem> allItems;
-	private Paging itemPaging;
 	
 	private List<CatalogField> allFields;
 	
@@ -54,8 +53,12 @@ public class Catalog implements Serializable, INeedTokenObj {
 		allFields = new LinkedList<>();
 		allItems = new LinkedList<>();
 	}
-	
-	public Catalog(String parentId, ICatalog catalog, IUser userDB, Token token/*, Paging itemPaging*/) throws SQLException {
+
+	public Catalog(String parentId, ICatalog catalog, IUser userDB, Token token) throws SQLException {
+		this(parentId, catalog, userDB, token, null);
+	}
+
+	public Catalog(String parentId, ICatalog catalog, IUser userDB, Token token, Paging itemPaging) throws SQLException {
 		this.parentId = parentId;
 		this.catalog = catalog;
 		//this.user = user;
@@ -73,9 +76,8 @@ public class Catalog implements Serializable, INeedTokenObj {
 		allFields = new LinkedList<>();
 		loadAllCatalogField(catalog, allFields, token);
 		
-		this.itemPaging = itemPaging;
 		allItems = new LinkedList<>();
-		loadAllCatalogItem(userDB, catalog, this.itemPaging, allFields, allItems, token);
+		loadAllCatalogItem(userDB, catalog, null, allFields, allItems, token);
 	}
 	
 	private static final void loadAllCatalogField(ICatalog catalog, List<CatalogField> allFields, Token token) {
@@ -103,17 +105,24 @@ public class Catalog implements Serializable, INeedTokenObj {
 	}
 
 	private static final void loadAllCatalogItem(IUser user, ICatalog catalog, Paging itemPaging, List<CatalogField> allFields, List<CatalogItem> allItems, Token token) throws SQLException {
-		if (catalog.getSystemCatalog() == null || itemPaging == null) {
+		if (allItems == null) {
+			return;
+		}
+		allItems.clear();
+		if (catalog.getSystemCatalog() == null || itemPaging == null || itemPaging.isNonShow()) {
 			return; // TODO BUG getCatalogItem from sysCat may cause nullpointer
 		}
 		IPagingList<ICatalogItem, ICatalogItemSort> paging = catalog.getCatalogItemPagingList();
 		if (paging == null) {
 			return;
 		}
-		IPage<ICatalogItem> page = paging.setPageSize(-1).loadPage(user, 1);
+		// TODO validate itemPaging
+		IPage<ICatalogItem> page = paging.setPageSize(itemPaging.getPageSize()).loadPage(user, itemPaging.getPageNumber());
 		if (page == null) {
 			return;
 		}
+		itemPaging.setPageNumber(page.getPageNumber());
+		itemPaging.updateLoadedPageCount(page.getPageCount());
 		ICatalogItem[] allDBItems = page.getPageEntries();
 		if (allDBItems == null) {
 			return;
@@ -277,17 +286,25 @@ public class Catalog implements Serializable, INeedTokenObj {
 		this.rootCatId = rootCatId;
 	}
 
-	public Paging getItemPaging() {
-		return itemPaging;
+	List<CatalogItem> loadItem(String catalogId, Paging itemPaging, IUser userDB) throws SQLException {
+		if (catalogId == null || this.id.equals(catalogId)) {
+			loadAllCatalogItem(userDB, catalog, itemPaging, allFields, allItems, token);
+			return this.allItems;
+		} else {
+			for (Catalog subCat : allSubCatalogs) {
+				List<CatalogItem> result = subCat.loadItem(catalogId, itemPaging, userDB);
+				if (result != null) {
+					return result;
+				}
+			}
+		}
+		return null;
 	}
 
-	public void setItemPaging(Paging itemPaging) {
-		this.itemPaging = itemPaging;
-	}
-
-	public boolean updateItem(String catalogId, CatalogItem updateCatalogItem, IUser userDB) throws SQLException {
+	boolean updateItem(String catalogId, Paging itemPaging, CatalogItem updateCatalogItem, IUser userDB) throws SQLException {
 		if (catalogId == null || this.id.equals(catalogId)) {
 			if (updateCatalogItem.getId() != null) {
+				this.loadItem(null, itemPaging, userDB);
 				for (CatalogItem itemLoaded : allItems) {
 					ICatalogItem itemDB = itemLoaded.toItemDB();
 					if (updateCatalogItem.updateToDB(itemDB)) {
@@ -303,7 +320,7 @@ public class Catalog implements Serializable, INeedTokenObj {
 			return true;
 		} else {
 			for (Catalog subCat : allSubCatalogs) {
-				if (subCat.updateItem(catalogId, updateCatalogItem, userDB)) {
+				if (subCat.updateItem(catalogId, itemPaging, updateCatalogItem, userDB)) {
 					return true;
 				}
 			}
@@ -311,11 +328,12 @@ public class Catalog implements Serializable, INeedTokenObj {
 		return false;
 	}
 
-	public boolean deleteCatItem(String catalogId, String catalogItemId, IUser user) throws SQLException {
+	boolean deleteCatItem(String catalogId, Paging itemPaging, String catalogItemId, IUser user) throws SQLException {
 		if (catalogItemId == null) {
 			return false;
 		}
 		if (catalogId == null || this.id.equals(catalogId)) {
+			this.loadItem(null, itemPaging, user);
 			for (CatalogItem itemLoaded : allItems) {
 				if (itemLoaded.getId().equals(catalogItemId)) {
 					this.catalog.getCatalogItemPagingList().delete(user, itemLoaded.toItemDB());
@@ -325,11 +343,12 @@ public class Catalog implements Serializable, INeedTokenObj {
 			return true;
 		} else {
 			for (Catalog subCat : allSubCatalogs) {
-				if (subCat.deleteCatItem(catalogId, catalogItemId, user)) {
+				if (subCat.deleteCatItem(catalogId, itemPaging, catalogItemId, user)) {
 					return true;
 				}
 			}
 		}
 		return false;
 	}
+
 }

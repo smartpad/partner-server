@@ -9,14 +9,21 @@ public class Paging implements Serializable {
 	 */
 	private static final long serialVersionUID = -1118933473836362951L;
 
-	private int pageSize;
-	
+	private static final int PAGE_RANGE_DEFAULT = 7;
+	private static final int PAGE_SIZE_DEFAULT = 10;// 10, 20, 50, 100, all
+
+	private int pageSize = PAGE_SIZE_DEFAULT;
+
+	private int pageRange = PAGE_RANGE_DEFAULT;
+
 	private String sort;
-	
+
 	private boolean ascending;
-	
-	private int pageNumber;
-	
+
+	private int pageNumber = 1;
+
+	private int pageCount;
+
 	public Paging() {
 	}
 
@@ -57,6 +64,50 @@ public class Paging implements Serializable {
 
 	public void setPageNumber(int pageNumber) {
 		this.pageNumber = pageNumber;
+	}
+
+	public boolean isNonShow() {
+		return this.pageSize == 0;
+	}
+
+	public int getPageRange() {
+		return pageRange;
+	}
+
+	public void setPageRange(int pageRange) {
+		this.pageRange = pageRange;
+	}
+
+	public int getActualRange() {
+		return Math.min(pageCount, pageRange);
+	}
+
+	public boolean isAllowFirst() {
+		return getFirstPageNumber() > 1;
+	}
+
+	public boolean isAllowLast() {
+		return getLastPageNumber() < pageCount;
+	}
+
+	public int getFirstPageNumber() {
+		int firstPage = pageNumber - (pageRange / 2);
+		if (firstPage < 1) {
+			firstPage = 1;
+		}
+		return firstPage;
+	}
+
+	public int getLastPageNumber() {
+		int lastPage = pageNumber + (pageRange / 2);
+		if (lastPage > pageCount) {
+			lastPage = this.pageCount;
+		}
+		return lastPage;
+	}
+
+	void updateLoadedPageCount(int pageCount) {
+		this.pageCount = pageCount;
 	}
 
 }
