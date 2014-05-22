@@ -32,7 +32,8 @@ public class Catalog implements Serializable, INeedTokenObj {
 	private List<Catalog> allSubCatalogs;
 	
 	private List<CatalogItem> allItems;
-
+	private Paging itemPaging;
+	
 	private List<CatalogField> allFields;
 	
 	private String id;
@@ -54,7 +55,7 @@ public class Catalog implements Serializable, INeedTokenObj {
 		allItems = new LinkedList<>();
 	}
 	
-	public Catalog(String parentId, ICatalog catalog, IUser userDB, Token token) throws SQLException {
+	public Catalog(String parentId, ICatalog catalog, IUser userDB, Token token/*, Paging itemPaging*/) throws SQLException {
 		this.parentId = parentId;
 		this.catalog = catalog;
 		//this.user = user;
@@ -72,8 +73,9 @@ public class Catalog implements Serializable, INeedTokenObj {
 		allFields = new LinkedList<>();
 		loadAllCatalogField(catalog, allFields, token);
 		
+		this.itemPaging = itemPaging;
 		allItems = new LinkedList<>();
-		loadAllCatalogItem(userDB, catalog, allFields, allItems, token);
+		loadAllCatalogItem(userDB, catalog, this.itemPaging, allFields, allItems, token);
 	}
 	
 	private static final void loadAllCatalogField(ICatalog catalog, List<CatalogField> allFields, Token token) {
@@ -100,8 +102,8 @@ public class Catalog implements Serializable, INeedTokenObj {
 		}
 	}
 
-	private static final void loadAllCatalogItem(IUser user, ICatalog catalog, List<CatalogField> allFields, List<CatalogItem> allItems, Token token) throws SQLException {
-		if (catalog.getSystemCatalog() == null) {
+	private static final void loadAllCatalogItem(IUser user, ICatalog catalog, Paging itemPaging, List<CatalogField> allFields, List<CatalogItem> allItems, Token token) throws SQLException {
+		if (catalog.getSystemCatalog() == null || itemPaging == null) {
 			return; // TODO BUG getCatalogItem from sysCat may cause nullpointer
 		}
 		IPagingList<ICatalogItem, ICatalogItemSort> paging = catalog.getCatalogItemPagingList();
@@ -273,6 +275,14 @@ public class Catalog implements Serializable, INeedTokenObj {
 	
 	public void setRootCatId(String rootCatId) {
 		this.rootCatId = rootCatId;
+	}
+
+	public Paging getItemPaging() {
+		return itemPaging;
+	}
+
+	public void setItemPaging(Paging itemPaging) {
+		this.itemPaging = itemPaging;
 	}
 
 	public boolean updateItem(String catalogId, CatalogItem updateCatalogItem, IUser userDB) throws SQLException {
