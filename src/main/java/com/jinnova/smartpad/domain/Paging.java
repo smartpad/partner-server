@@ -9,7 +9,7 @@ public class Paging implements Serializable {
 	 */
 	private static final long serialVersionUID = -1118933473836362951L;
 
-	private static final int PAGE_RANGE_DEFAULT = 7;
+	private static final int PAGE_RANGE_DEFAULT = 2;
 	private static final int PAGE_SIZE_DEFAULT = 10;// 10, 20, 50, 100, all
 
 	private int pageSize = PAGE_SIZE_DEFAULT;

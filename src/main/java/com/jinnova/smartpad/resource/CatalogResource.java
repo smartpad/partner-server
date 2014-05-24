@@ -74,6 +74,7 @@ public class CatalogResource {
 			JsonResponse result = new JsonResponse(true);
 			result.put("allItems", user.loadItemByPaging(catalogId, isSysCat, paging));
 			result.put("paging", paging);
+			result.put("branchName", user.getCatalogItemBranchNameDefault());
 			return result;
 		} catch (SQLException e) {
 			return new JsonResponse(false, "Cannot load catalog item info: " + e.getMessage());
