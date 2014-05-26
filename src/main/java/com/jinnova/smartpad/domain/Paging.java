@@ -100,11 +100,23 @@ public class Paging implements Serializable {
 
 	public int getLastPageNumber() {
 		int lastPage = pageNumber + (pageRange / 2);
-		if (lastPage > pageCount) {
-			lastPage = this.pageCount;
+		if (lastPage > pageRange) {
+			lastPage = this.pageRange;
 		}
 		return lastPage;
 	}
+
+	/*private static final int[] getRangePageNumbers() {
+		int[] result = new int[2];
+		int firstPage = pageNumber - (pageRange / 2);
+		if (firstPage < 1) {
+			firstPage = 1;
+		}
+		int lastPage = pageNumber + (pageRange / 2);
+		if (lastPage > pageRange) {
+			lastPage = this.pageRange;
+		}
+	}*/
 
 	void updateLoadedPageCount(int pageCount) {
 		this.pageCount = pageCount;

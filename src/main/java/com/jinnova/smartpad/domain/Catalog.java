@@ -301,26 +301,26 @@ public class Catalog implements Serializable, INeedTokenObj {
 		return null;
 	}
 
-	boolean updateItem(String catalogId, Paging itemPaging, CatalogItem updateCatalogItem, IUser userDB) throws SQLException {
+	boolean updateItem(String catalogId, String sysCatId, Paging itemPaging, CatalogItem updateCatalogItem, IUser userDB) throws SQLException {
 		if (catalogId == null || this.id.equals(catalogId)) {
 			if (updateCatalogItem.getId() != null) {
 				this.loadItem(null, itemPaging, userDB);
 				for (CatalogItem itemLoaded : allItems) {
 					ICatalogItem itemDB = itemLoaded.toItemDB();
-					if (updateCatalogItem.updateToDB(itemDB)) {
+					if (updateCatalogItem.updateToDB(itemDB, sysCatId)) {
 						catalog.getCatalogItemPagingList().put(userDB, itemDB);
 						break;
 					}
 				}
 			} else {
 				ICatalogItem newItem = catalog.getCatalogItemPagingList().newEntryInstance(userDB);
-				updateCatalogItem.updateToDB(newItem);
+				updateCatalogItem.updateToDB(newItem, sysCatId);
 				catalog.getCatalogItemPagingList().put(userDB, newItem);
 			}
 			return true;
 		} else {
 			for (Catalog subCat : allSubCatalogs) {
-				if (subCat.updateItem(catalogId, itemPaging, updateCatalogItem, userDB)) {
+				if (subCat.updateItem(catalogId, sysCatId, itemPaging, updateCatalogItem, userDB)) {
 					return true;
 				}
 			}

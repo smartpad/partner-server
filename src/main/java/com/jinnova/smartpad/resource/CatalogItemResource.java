@@ -21,19 +21,28 @@ import com.jinnova.smartpad.util.JsonResponse;
 public class CatalogItemResource {
 
 	@POST
-	@Path("/{user}/{catalogId}/true")
-	public JsonResponse saveSysCatalogItem(@PathParam("user") String userName, final CatalogItem updateCatalogItem, @PathParam("catalogId") String catalogId) {
-		return saveCatalogItemInternal(userName, updateCatalogItem, catalogId, true);
+	@Path("/{user}/{catalogId}/{sysCatId}/{isSysCat}")
+	public JsonResponse saveSysCatalogItem(@PathParam("user") String userName, final CatalogItem updateCatalogItem, 
+			@PathParam("catalogId") String catalogId, @PathParam("sysCatId") String sysCatId, @PathParam("isSysCat") Boolean isSysCat) {
+		return saveCatalogItemInternal(userName, updateCatalogItem, catalogId, sysCatId, isSysCat);
 	}
 
 	@POST
-	@Path("/{user}/{catalogId}/false")
-	public JsonResponse saveCatalogItem(@PathParam("user") String userName, final CatalogItem updateCatalogItem, @PathParam("catalogId") String catalogId) {
-		return saveCatalogItemInternal(userName, updateCatalogItem, catalogId, false);
+	@Path("/{user}/{catalogId}/{isSysCat}")
+	public JsonResponse saveCatalogItem(@PathParam("user") String userName, final CatalogItem updateCatalogItem, 
+			@PathParam("catalogId") String catalogId, @PathParam("isSysCat") Boolean isSysCat) {
+		return saveCatalogItemInternal(userName, updateCatalogItem, catalogId, null, isSysCat);
 	}
 
-	private static final JsonResponse saveCatalogItemInternal(String userName, final CatalogItem updateCatalogItem, String catalogId, boolean isSys) {
-		// TODO
+	/*@POST
+	@Path("/{user}/{catalogId}/{sysCatId}/{isSysCat}")
+	public JsonResponse saveCatalogItem(@PathParam("user") String userName, final CatalogItem updateCatalogItem, 
+			@PathParam("catalogId") String catalogId, @PathParam("sysCatId") String sysCatId) {
+		return saveCatalogItemInternal(userName, updateCatalogItem, catalogId, sysCatId, false);
+	}*/
+
+	private static final JsonResponse saveCatalogItemInternal(String userName, final CatalogItem updateCatalogItem, String catalogId, 
+			String sysCatId, boolean isSys) {
 		if (updateCatalogItem == null) {
 			// TODO validate
 		}
@@ -44,7 +53,7 @@ public class CatalogItemResource {
 		}
 		// Update catalog
 		try {
-			Catalog updatedCatalogResult = user.updateCatalogItem(updateCatalogItem, catalogId, isSys);
+			Catalog updatedCatalogResult = user.updateCatalogItem(updateCatalogItem, catalogId, sysCatId, isSys);
 			if (updatedCatalogResult == null) {
 				return new JsonResponse(false, "Cannot find or update catalog item: " + updateCatalogItem.getValuesSingle().get(ICatalogField.F_NAME));
 			}
@@ -55,14 +64,15 @@ public class CatalogItemResource {
 	}
 
 	@DELETE
-	@Path("/{user}/{catalogItemId}/{catalogId}/{sysCatalogItemId}")
-	public JsonResponse deleteCatalog(@PathParam("user") String userName, @PathParam("catalogItemId") String catalogItemId, @PathParam("catalogId") String catalogId, @PathParam("sysCatalogItemId") Boolean sysCatalogId) {
+	@Path("/{user}/{catalogItemId}/{catalogId}/{isSysCat}")
+	public JsonResponse deleteCatalog(@PathParam("user") String userName, @PathParam("catalogItemId") String catalogItemId, @PathParam("catalogId") String catalogId
+			, @PathParam("isSysCat") Boolean isSysCat) {
 		User user = UserLoggedInManager.instance.getUser(userName);
 		if (user == null) {
 			return new JsonResponse(false, "User not logged in!");
 		}
 		try {
-			Catalog deletedOneItemCatalog = user.deleteCatItem(catalogItemId, catalogId, sysCatalogId, user.toUserDB());
+			Catalog deletedOneItemCatalog = user.deleteCatItem(catalogItemId, catalogId, isSysCat, user.toUserDB());
 			if (deletedOneItemCatalog == null) {
 				return new JsonResponse(false, "Cannot delete catalog item info");
 			}

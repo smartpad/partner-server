@@ -105,7 +105,7 @@ public class CatalogItem implements Serializable, INeedTokenObj {
 		return this.item;
 	}
 	
-	public boolean updateToDB(ICatalogItem itemLoaded) {
+	public boolean updateToDB(ICatalogItem itemLoaded, String sysCatId) {
 		if (itemLoaded == null) {
 			return false;
 		}
@@ -113,8 +113,11 @@ public class CatalogItem implements Serializable, INeedTokenObj {
 		if (!isSameId) {
 			return false;
 		}
-		if (this.branchName != null && this.branchName.trim().isEmpty()) {
+		if (this.branchName != null && !this.branchName.trim().isEmpty()) {
 			itemLoaded.setBranchName(this.branchName);
+		}
+		if (sysCatId != null && !sysCatId.trim().isEmpty()) {
+			itemLoaded.setSystemCatalogId(sysCatId);
 		}
 		for (Entry<String, String> field : this.valuesSingle.entrySet()) {
 			itemLoaded.setField(field.getKey(), field.getValue());

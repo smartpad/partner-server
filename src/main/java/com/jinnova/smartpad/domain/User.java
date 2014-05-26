@@ -181,14 +181,14 @@ public class User implements Serializable, INeedTokenObj {
 		return catToLoad.loadItem(catId, itemPaging, this.user);
 	}
 
-	public Catalog updateCatalogItem(CatalogItem updateCatalogItem, String catalogId, boolean sysCatalogId) throws SQLException {
+	public Catalog updateCatalogItem(CatalogItem updateCatalogItem, String catalogId, String sysCatId, boolean sysCatalogId) throws SQLException {
 		if (catalogId == null) {
 			return null;
 		}
 		// reload cat
 		getCatalog();
 		if (!sysCatalogId) {
-			this.catalog.updateItem(catalogId, itemPaging, updateCatalogItem, user);
+			this.catalog.updateItem(catalogId, sysCatId, itemPaging, updateCatalogItem, user);
 			return getCatalog();
 		} else {
 			ICatalog sysCat = PartnerManager.instance.getSystemCatalog(catalogId);
@@ -197,7 +197,7 @@ public class User implements Serializable, INeedTokenObj {
 			}
 			// TODO handle page loaded from syscat not new catalog that load all catItem
 			//new Catalog(null, sysCat, user, token).updateItem(null, itemPaging, updateCatalogItem, user);
-			this.catalog.updateItem(null, itemPaging, updateCatalogItem, user);
+			this.catalog.updateItem(null, sysCatId, itemPaging, updateCatalogItem, user);
 			return new Catalog(null, sysCat, user, token);
 		}
 	}
