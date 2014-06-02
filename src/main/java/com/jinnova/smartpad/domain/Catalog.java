@@ -2,9 +2,11 @@ package com.jinnova.smartpad.domain;
 
 import java.io.Serializable;
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.annotate.JsonIgnore;
 
 import com.jinnova.smartpad.IPage;
@@ -15,6 +17,7 @@ import com.jinnova.smartpad.partner.ICatalogField;
 import com.jinnova.smartpad.partner.ICatalogItem;
 import com.jinnova.smartpad.partner.ICatalogItemSort;
 import com.jinnova.smartpad.partner.IUser;
+import com.jinnova.smartpad.partner.PartnerManager;
 
 public class Catalog implements Serializable, INeedTokenObj {
 
@@ -47,6 +50,8 @@ public class Catalog implements Serializable, INeedTokenObj {
 
 	private String rootCatId;
 	
+	private String branchName;
+	
 	public Catalog() {
 		this.catalog = null;
 		allSubCatalogs = new LinkedList<>();
@@ -61,6 +66,7 @@ public class Catalog implements Serializable, INeedTokenObj {
 	public Catalog(String parentId, ICatalog catalog, IUser userDB, Token token, Paging itemPaging) throws SQLException {
 		this.parentId = parentId;
 		this.catalog = catalog;
+		this.branchName = this.catalog.getCatalogItemPagingList().newEntryInstance(userDB).getBranchName();
 		//this.user = user;
 		ICatalog sysCat = this.catalog.getSystemCatalog();
 		if (sysCat != null) {
@@ -286,6 +292,18 @@ public class Catalog implements Serializable, INeedTokenObj {
 		this.rootCatId = rootCatId;
 	}
 
+	public String getBranchName() {
+		return branchName;
+	}
+
+	public void setBranchName(String branchName) {
+		this.branchName = branchName;
+	}
+
+	public boolean isSysCat() {
+		return PartnerManager.instance.getSystemCatalog(this.id) != null;
+	}
+
 	List<CatalogItem> loadItem(String catalogId, Paging itemPaging, IUser userDB) throws SQLException {
 		if (catalogId == null || this.id.equals(catalogId)) {
 			loadAllCatalogItem(userDB, catalog, itemPaging, allFields, allItems, token);
@@ -307,14 +325,14 @@ public class Catalog implements Serializable, INeedTokenObj {
 				this.loadItem(null, itemPaging, userDB);
 				for (CatalogItem itemLoaded : allItems) {
 					ICatalogItem itemDB = itemLoaded.toItemDB();
-					if (updateCatalogItem.updateToDB(itemDB, sysCatId)) {
+					if (updateItemInternal(updateCatalogItem, itemDB, sysCatId)) {
 						catalog.getCatalogItemPagingList().put(userDB, itemDB);
 						break;
 					}
 				}
-			} else {
+			} else {// add new item
 				ICatalogItem newItem = catalog.getCatalogItemPagingList().newEntryInstance(userDB);
-				updateCatalogItem.updateToDB(newItem, sysCatId);
+				updateItemInternal(updateCatalogItem, newItem, sysCatId);
 				catalog.getCatalogItemPagingList().put(userDB, newItem);
 			}
 			return true;
@@ -326,6 +344,18 @@ public class Catalog implements Serializable, INeedTokenObj {
 			}
 		}
 		return false;
+	}
+
+	private boolean updateItemInternal(CatalogItem updateCatalogItem, ICatalogItem itemDB, String sysCatId) {
+		if (!StringUtils.isEmpty(sysCatId)) {
+			if (itemDB.getId() != null) {
+				throw new RuntimeException("Cannot change catalog for existing item");
+			}
+			if (isSysCat() && !StringUtils.isEmpty(sysCatId)) {
+				throw new RuntimeException("Selected another system catalog to save item");
+			}
+		}
+		return updateCatalogItem.updateToDB(itemDB, sysCatId);
 	}
 
 	boolean deleteCatItem(String catalogId, Paging itemPaging, String catalogItemId, IUser user) throws SQLException {
@@ -349,6 +379,18 @@ public class Catalog implements Serializable, INeedTokenObj {
 			}
 		}
 		return false;
+	}
+
+	public static List<Catalog> newListCatFromDB(LinkedList<com.jinnova.smartpad.partner.Catalog> systemSubCatalogs, IUser userDB, Token token)
+			throws SQLException {
+		if (systemSubCatalogs == null) {
+			return Collections.emptyList();
+		}
+		List<Catalog> result = new LinkedList<>();
+		for (com.jinnova.smartpad.partner.Catalog sysSubCat : systemSubCatalogs) {
+			result.add(new Catalog(sysSubCat.getParentCatalogId(), sysSubCat, userDB, token));
+		}
+		return result;
 	}
 
 }

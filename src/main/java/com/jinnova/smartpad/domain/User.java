@@ -47,7 +47,8 @@ public class User implements Serializable, INeedTokenObj {
 
 	public Catalog getCatalog() throws SQLException {
 		//catalog = new Catalog(user.getBranch().getRootCatalog(), this, user);
-		catalog = new Catalog(null, user.getBranch().getRootCatalog(), user, token);
+		ICatalog rootCat = user.getBranch().getRootCatalog();
+		catalog = new Catalog(rootCat.getSystemCatalog().getId(), rootCat, user, token);
 		return catalog;
 	}
 
@@ -165,65 +166,61 @@ public class User implements Serializable, INeedTokenObj {
 		return result;
 	}
 
-	public List<CatalogItem> loadItemByPaging(String catId, boolean sysCatalogId, Paging itemPaging) throws SQLException {
+	public List<CatalogItem> loadItemByPaging(String catId, Paging itemPaging) throws SQLException {
 		this.itemPaging = itemPaging;
-		Catalog catToLoad = null;
-		if (!sysCatalogId) {
-			catToLoad = getCatalog();
-		} else {
-			ICatalog sysCat = PartnerManager.instance.getSystemCatalog(catId);
-			if (sysCat == null) {
-				return null; // TODO throw exception ?
-			}
-			// TODO handle page loaded from syscat not new catalog that load all catItem
-			catToLoad = new Catalog(null, sysCat, user, token);
+		Catalog catToLoad = getCatalogById(catId);
+		if (catToLoad == null) {
+			// TODO handle can not find cat
+			return null;
 		}
 		return catToLoad.loadItem(catId, itemPaging, this.user);
 	}
 
-	public Catalog updateCatalogItem(CatalogItem updateCatalogItem, String catalogId, String sysCatId, boolean sysCatalogId) throws SQLException {
-		if (catalogId == null) {
-			return null;
-		}
-		// reload cat
-		getCatalog();
-		if (!sysCatalogId) {
-			this.catalog.updateItem(catalogId, sysCatId, itemPaging, updateCatalogItem, user);
-			return getCatalog();
-		} else {
-			ICatalog sysCat = PartnerManager.instance.getSystemCatalog(catalogId);
-			if (sysCat == null) {
-				return null; // TODO throw exception ?
-			}
-			// TODO handle page loaded from syscat not new catalog that load all catItem
-			//new Catalog(null, sysCat, user, token).updateItem(null, itemPaging, updateCatalogItem, user);
-			this.catalog.updateItem(null, sysCatId, itemPaging, updateCatalogItem, user);
+	public Catalog getCatalogById(String catId) throws SQLException {
+		ICatalog sysCat = PartnerManager.instance.getSystemCatalog(catId);
+		if (sysCat != null) {
 			return new Catalog(null, sysCat, user, token);
+		} else {
+			return getCatalog();
 		}
 	}
-
-	public Catalog deleteCatItem(String catalogItemId, String catalogId, boolean sysCatalogId, IUser userDB) throws SQLException {
+	
+	public Catalog updateCatalogItem(CatalogItem updateCatalogItem, String catalogId, String sysCatId/*, boolean sysCatalogId*/) throws SQLException {
 		if (catalogId == null) {
 			return null;
 		}
-		if (!sysCatalogId) {
-			getCatalog();
-			//this.catalog.loadItem(catalogId, itemPaging, userDB);
-			this.catalog.deleteCatItem(catalogId, itemPaging, catalogItemId, user);
-			return getCatalog();
-		} else {
-			ICatalog sysCatDb = PartnerManager.instance.getSystemCatalog(catalogId);
-			if (sysCatDb == null) {
-				return null; // TODO throw exception ?
-			}
-			// TODO handle page loaded from syscat not new catalog that load all catItem
+		Catalog cat = getCatalogById(catalogId);
+		if (cat == null) {
+			// TODO handle can not find cat
+			return null;
+		}
+		cat.updateItem(catalogId, sysCatId, itemPaging, updateCatalogItem, user);
+		return getCatalogById(catalogId);
+	}
+
+	public Catalog deleteCatItem(String catalogItemId, String catalogId, /*boolean sysCatalogId,*/ IUser userDB) throws SQLException {
+		Catalog cat = getCatalogById(catalogId);
+		if (cat == null) {
+			// TODO handle can not find cat
+			return null;
+		}
+		cat.deleteCatItem(catalogId, itemPaging, catalogItemId, user);
+		return getCatalogById(catalogId);
+		/*if (catalogId == null) {
+			return null;
+		}
+		ICatalog sysCatDb = PartnerManager.instance.getSystemCatalog(catalogId);
+		if (sysCatDb != null) {
 			new Catalog(null, sysCatDb, user, token).deleteCatItem(null, itemPaging, catalogItemId, user);
 			return new Catalog(null, sysCatDb, user, token);
-		}
+		} else {
+			getCatalog().deleteCatItem(catalogId, itemPaging, catalogItemId, user);
+			return getCatalog();
+		}*/
 	}
 
-	public String getCatalogItemBranchNameDefault() {
+	/*public String getCatalogItemBranchNameDefault() {
 		return this.user.getBranch().getRootCatalog().getCatalogItemPagingList().newEntryInstance(user).getBranchName();
-	}
+	}*/
 
 }

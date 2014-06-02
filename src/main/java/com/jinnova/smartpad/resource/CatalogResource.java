@@ -1,5 +1,7 @@
 package com.jinnova.smartpad.resource;
 
+import static com.jinnova.smartpad.domain.Catalog.newListCatFromDB;
+
 import java.sql.SQLException;
 
 import javax.ws.rs.Consumes;
@@ -31,7 +33,12 @@ public class CatalogResource {
 			return new JsonResponse(false, "User not logged in!");
 		}
 		try {
-			return new JsonResponse(true, user.getCatalog());
+			Catalog catResult = user.getCatalog();
+			JsonResponse result = new JsonResponse(true, catResult);
+			result.put("subSysCat", newListCatFromDB(PartnerManager.instance.getSystemSubCatalog(catResult.getParentId()),
+					user.toUserDB(), user.getToken()));
+			//result.put("branchName", user.getCatalogItemBranchNameDefault());
+			return result;
 		} catch (SQLException e) {
 			return new JsonResponse(false, "Cannot load catalog info: " + e.getMessage());
 		}
@@ -48,36 +55,6 @@ public class CatalogResource {
 			return new JsonResponse(true, new Catalog(null, PartnerManager.instance.getSystemRootCatalog(), user.toUserDB(), user.getToken()));
 		} catch (SQLException e) {
 			return new JsonResponse(false, "Cannot load catalog info: " + e.getMessage());
-		}
-	}
-
-	@GET
-	@Path("/true/{user}/{catalogId}")
-	@Consumes(MediaType.APPLICATION_JSON)
-    public JsonResponse getSysCatalogItem(@PathParam("user") String userName, @PathParam("catalogId") String catalogId, @QueryParam("pageNumber") int pageNumber, @QueryParam("pageSize") int pageSize/*Paging paging*/) {
-		return getCatalogItemInternal(userName, catalogId, new Paging(pageSize, null, false, pageNumber)/*paging*/, true);
-	}
-
-	@GET
-	@Path("/false/{user}/{catalogId}/")
-	@Consumes(MediaType.APPLICATION_JSON)
-	public JsonResponse getCatalogItem(@PathParam("user") String userName, @PathParam("catalogId") String catalogId, @QueryParam("pageNumber") int pageNumber, @QueryParam("pageSize") int pageSize/*Paging paging*/) {
-		return getCatalogItemInternal(userName, catalogId, new Paging(pageSize, null, false, pageNumber)/*paging*/, false);
-	}
-
-    private static final JsonResponse getCatalogItemInternal(String userName, String catalogId, Paging paging, boolean isSysCat) {
-		User user = UserLoggedInManager.instance.getUser(userName);
-		if (user == null) {
-			return new JsonResponse(false, "User not logged in!");
-		}
-		try {
-			JsonResponse result = new JsonResponse(true);
-			result.put("allItems", user.loadItemByPaging(catalogId, isSysCat, paging));
-			result.put("paging", paging);
-			result.put("branchName", user.getCatalogItemBranchNameDefault());
-			return result;
-		} catch (SQLException e) {
-			return new JsonResponse(false, "Cannot load catalog item info: " + e.getMessage());
 		}
 	}
 
@@ -122,4 +99,38 @@ public class CatalogResource {
 			return new JsonResponse(false, "Cannot delete catalog info: " + e.getMessage());
 		}
 	}
+
+	////////////////////////////////
+	// Catalog item resource
+	// TODO move to CatItemResource
+	////////////////////////////////
+	/*@GET
+	@Path("/true/{user}/{catalogId}")
+	@Consumes(MediaType.APPLICATION_JSON)
+    public JsonResponse getSysCatalogItem(@PathParam("user") String userName, @PathParam("catalogId") String catalogId, @QueryParam("pageNumber") int pageNumber, @QueryParam("pageSize") int pageSize) {
+		return getCatalogItemInternal(userName, catalogId, new Paging(pageSize, null, false, pageNumber), true);
+	}*/
+
+	@GET
+	@Path("/false/{user}/{catalogId}/")
+	@Consumes(MediaType.APPLICATION_JSON)
+	public JsonResponse getCatalogItem(@PathParam("user") String userName, @PathParam("catalogId") String catalogId, @QueryParam("pageNumber") int pageNumber, @QueryParam("pageSize") int pageSize/*Paging paging*/) {
+		return getCatalogItemInternal(userName, catalogId, new Paging(pageSize, null, false, pageNumber)/*, false*/);
+	}
+
+    private static final JsonResponse getCatalogItemInternal(String userName, String catalogId, Paging paging/*, boolean isSysCat*/) {
+		User user = UserLoggedInManager.instance.getUser(userName);
+		if (user == null) {
+			return new JsonResponse(false, "User not logged in!");
+		}
+		try {
+			JsonResponse result = new JsonResponse(true);
+			result.put("allItems", user.loadItemByPaging(catalogId, /*isSysCat,*/ paging));
+			result.put("paging", paging);
+			return result;
+		} catch (SQLException e) {
+			return new JsonResponse(false, "Cannot load catalog item info: " + e.getMessage());
+		}
+	}
+
 }
