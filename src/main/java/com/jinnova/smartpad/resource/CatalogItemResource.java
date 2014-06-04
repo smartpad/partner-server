@@ -57,7 +57,7 @@ public class CatalogItemResource {
 			if (updatedCatalogResult == null) {
 				return new JsonResponse(false, "Cannot find or update catalog item: " + updateCatalogItem.getValuesSingle().get(ICatalogField.F_NAME));
 			}
-			return new JsonResponse(true, updatedCatalogResult);
+			return updatedCatalogResult.getJsonResponse(user.toUserDB(), user.getToken());
 		} catch (SQLException e) {
 			return new JsonResponse(false, "Cannot save catalog info: " + e.getMessage());
 		}

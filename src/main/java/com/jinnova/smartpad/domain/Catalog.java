@@ -18,6 +18,7 @@ import com.jinnova.smartpad.partner.ICatalogItem;
 import com.jinnova.smartpad.partner.ICatalogItemSort;
 import com.jinnova.smartpad.partner.IUser;
 import com.jinnova.smartpad.partner.PartnerManager;
+import com.jinnova.smartpad.util.JsonResponse;
 
 public class Catalog implements Serializable, INeedTokenObj {
 
@@ -381,7 +382,7 @@ public class Catalog implements Serializable, INeedTokenObj {
 		return false;
 	}
 
-	public static List<Catalog> newListCatFromDB(LinkedList<com.jinnova.smartpad.partner.Catalog> systemSubCatalogs, IUser userDB, Token token)
+	private static List<Catalog> newListCatFromDB(LinkedList<com.jinnova.smartpad.partner.Catalog> systemSubCatalogs, IUser userDB, Token token)
 			throws SQLException {
 		if (systemSubCatalogs == null) {
 			return Collections.emptyList();
@@ -393,4 +394,11 @@ public class Catalog implements Serializable, INeedTokenObj {
 		return result;
 	}
 
+	public JsonResponse getJsonResponse(IUser userDB, Token token) throws SQLException {
+		JsonResponse result = new JsonResponse(true, this);
+		if (!isSysCat()) {
+			result.put("subSysCat", newListCatFromDB(PartnerManager.instance.getSystemSubCatalog(getParentId()), userDB, token));
+		}
+		return result;
+	}
 }

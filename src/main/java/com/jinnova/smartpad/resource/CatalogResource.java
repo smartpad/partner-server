@@ -1,7 +1,5 @@
 package com.jinnova.smartpad.resource;
 
-import static com.jinnova.smartpad.domain.Catalog.newListCatFromDB;
-
 import java.sql.SQLException;
 
 import javax.ws.rs.Consumes;
@@ -34,11 +32,14 @@ public class CatalogResource {
 		}
 		try {
 			Catalog catResult = user.getCatalog();
-			JsonResponse result = new JsonResponse(true, catResult);
+			if (catResult == null) {
+				return new JsonResponse(false, "Cannot find catalog");
+			}
+			/*JsonResponse result = new JsonResponse(true, catResult);
 			result.put("subSysCat", newListCatFromDB(PartnerManager.instance.getSystemSubCatalog(catResult.getParentId()),
-					user.toUserDB(), user.getToken()));
+					user.toUserDB(), user.getToken()));*/
 			//result.put("branchName", user.getCatalogItemBranchNameDefault());
-			return result;
+			return catResult.getJsonResponse(user.toUserDB(), user.getToken());
 		} catch (SQLException e) {
 			return new JsonResponse(false, "Cannot load catalog info: " + e.getMessage());
 		}
@@ -52,7 +53,8 @@ public class CatalogResource {
 			return new JsonResponse(false, "User not logged in!");
 		}
 		try {
-			return new JsonResponse(true, new Catalog(null, PartnerManager.instance.getSystemRootCatalog(), user.toUserDB(), user.getToken()));
+			return new Catalog(null, PartnerManager.instance.getSystemRootCatalog(), user.toUserDB(), user.getToken())
+							.getJsonResponse(user.toUserDB(), user.getToken());
 		} catch (SQLException e) {
 			return new JsonResponse(false, "Cannot load catalog info: " + e.getMessage());
 		}
