@@ -16,6 +16,7 @@ import com.jinnova.smartpad.UserLoggedInManager;
 import com.jinnova.smartpad.domain.Catalog;
 import com.jinnova.smartpad.domain.Paging;
 import com.jinnova.smartpad.domain.User;
+import com.jinnova.smartpad.partner.ICatalog;
 import com.jinnova.smartpad.partner.PartnerManager;
 import com.jinnova.smartpad.util.JsonResponse;
 
@@ -53,7 +54,8 @@ public class CatalogResource {
 			return new JsonResponse(false, "User not logged in!");
 		}
 		try {
-			return new Catalog(null, PartnerManager.instance.getSystemRootCatalog(), user.toUserDB(), user.getToken())
+			ICatalog rootSysCat = PartnerManager.instance.getSystemRootCatalog().getSubCatalogPagingList().setPageSize(-1).loadPage(user.toUserDB(), 1).getPageEntries()[0];
+			return new Catalog(null, rootSysCat, user.toUserDB(), user.getToken())
 							.getJsonResponse(user.toUserDB(), user.getToken());
 		} catch (SQLException e) {
 			return new JsonResponse(false, "Cannot load catalog info: " + e.getMessage());
@@ -114,7 +116,7 @@ public class CatalogResource {
 	}*/
 
 	@GET
-	@Path("/false/{user}/{catalogId}/")
+	@Path("/{user}/{catalogId}/")
 	@Consumes(MediaType.APPLICATION_JSON)
 	public JsonResponse getCatalogItem(@PathParam("user") String userName, @PathParam("catalogId") String catalogId, @QueryParam("pageNumber") int pageNumber, @QueryParam("pageSize") int pageSize/*Paging paging*/) {
 		return getCatalogItemInternal(userName, catalogId, new Paging(pageSize, null, false, pageNumber)/*, false*/);
