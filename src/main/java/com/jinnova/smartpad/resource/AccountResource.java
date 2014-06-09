@@ -30,4 +30,19 @@ public class AccountResource {
 			return new JsonResponse(false, e.getMessage());
 		}
 	}
+	
+	@POST
+	@Path("register")
+	@Consumes(MediaType.APPLICATION_JSON)
+    public JsonResponse register(User user) {
+		try {
+			User userLogged = UserLoggedInManager.instance.register(user.getUserNameText(), user.getPasswordText());
+			if (userLogged == null) {
+				return new JsonResponse(false, "Incorrect account!");
+			}
+			return new JsonResponse(true, userLogged); 
+		} catch (SQLException e) {
+			return new JsonResponse(false, e.getMessage());
+		}
+	}
 }

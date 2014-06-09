@@ -34,6 +34,16 @@ public class UserLoggedInManager {
 		return result;
 	}
 	
+	public User register(String login, String password) throws SQLException {
+		IUser user = PartnerManager.instance.createPrimaryUser(login, password);
+		if (user == null) {
+			return null;
+		}
+		User result = new User(user, new Token(login, login));
+		allLoggedInUser.put(login, result);
+		return result;
+	}
+	
 	public void logout(String login) {
 		// TODO handle user logged out
 	}

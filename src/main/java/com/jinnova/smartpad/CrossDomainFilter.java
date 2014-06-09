@@ -25,7 +25,7 @@ public class CrossDomainFilter implements Filter {
 	public void doFilter(ServletRequest request, ServletResponse response,
 			FilterChain chain) throws IOException, ServletException {
 		HttpServletResponse res = (HttpServletResponse) response;
-        res.setHeader(ACCESS_CONTROL_ALLOW_ORIGIN_PARAM, this.allowOriginSite);
+        res.setHeader(ACCESS_CONTROL_ALLOW_ORIGIN_PARAM, /*this.allowOriginSite*/ "*");
         res.setHeader("Access-Control-Allow-Headers", "origin, content-type, accept, authorization");
         res.setHeader("Access-Control-Allow-Credentials", "true");
         res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, HEAD");

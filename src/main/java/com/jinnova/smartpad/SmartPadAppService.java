@@ -38,7 +38,7 @@ public class SmartPadAppService extends Service<SmartPadConfiguration> {
 
         environment.addResource(new AccountResource());
         environment.addResource(new CatalogResource());
-        SmartpadCommon.initialize("localhost", null, "smartpad", "root", "root");
+        SmartpadCommon.initialize("localhost", null, "smartpad_drill", "root", "", "./imaging/in-queue", "./imaging/root");
         UserLoggedInManager.initialize();
     }
 
