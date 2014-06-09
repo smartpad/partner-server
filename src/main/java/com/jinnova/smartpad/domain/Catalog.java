@@ -116,7 +116,7 @@ public class Catalog implements Serializable, INeedTokenObj {
 			return;
 		}
 		allItems.clear();
-		if (catalog.getSystemCatalog() == null || itemPaging == null || itemPaging.isNonShow()) {
+		if (/*catalog.getSystemCatalog() == null || */itemPaging == null || itemPaging.isNonShow()) {
 			return; // TODO BUG getCatalogItem from sysCat may cause nullpointer
 		}
 		IPagingList<ICatalogItem, ICatalogItemSort> paging = catalog.getCatalogItemPagingList();

@@ -25,7 +25,7 @@ import com.jinnova.smartpad.util.JsonResponse;
 public class CatalogResource {
 
 	@GET
-	@Path("/{user}")
+	@Path("/false/{user}")
     public JsonResponse getCatalog(@PathParam("user") String userName) {
 		User user = UserLoggedInManager.instance.getUser(userName);
 		if (user == null) {
@@ -47,7 +47,7 @@ public class CatalogResource {
 	}
 
 	@GET
-	@Path("/sys/{user}")
+	@Path("/true/{user}")
     public JsonResponse getSysCatalog(@PathParam("user") String userName) {
 		User user = UserLoggedInManager.instance.getUser(userName);
 		if (user == null) {
