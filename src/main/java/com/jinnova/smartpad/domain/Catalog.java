@@ -396,7 +396,9 @@ public class Catalog implements Serializable, INeedTokenObj {
 
 	public JsonResponse getJsonResponse(IUser userDB, Token token) throws SQLException {
 		JsonResponse result = new JsonResponse(true, this);
-		if (!isSysCat()) {
+		if (isSysCat()) {
+			//result = new JsonResponse(true, this);
+		} else {
 			result.put("subSysCat", newListCatFromDB(PartnerManager.instance.getSystemSubCatalog(getParentId()), userDB, token));
 		}
 		return result;

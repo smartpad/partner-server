@@ -168,7 +168,7 @@ public class User implements Serializable, INeedTokenObj {
 
 	public List<CatalogItem> loadItemByPaging(String catId, Paging itemPaging) throws SQLException {
 		this.itemPaging = itemPaging;
-		Catalog catToLoad = getCatalogById(catId);
+		Catalog catToLoad = getRootCatalogById(catId);
 		if (catToLoad == null) {
 			// TODO handle can not find cat
 			return null;
@@ -176,7 +176,7 @@ public class User implements Serializable, INeedTokenObj {
 		return catToLoad.loadItem(catId, itemPaging, this.user);
 	}
 
-	public Catalog getCatalogById(String catId) throws SQLException {
+	public Catalog getRootCatalogById(String catId) throws SQLException {
 		ICatalog sysCat = PartnerManager.instance.getSystemCatalog(catId);
 		if (sysCat != null) {
 			return new Catalog(null, sysCat, user, token);
@@ -189,23 +189,23 @@ public class User implements Serializable, INeedTokenObj {
 		if (catalogId == null) {
 			return null;
 		}
-		Catalog cat = getCatalogById(catalogId);
+		Catalog cat = getRootCatalogById(catalogId);
 		if (cat == null) {
 			// TODO handle can not find cat
 			return null;
 		}
 		cat.updateItem(catalogId, sysCatId, itemPaging, updateCatalogItem, user);
-		return getCatalogById(catalogId);
+		return getRootCatalogById(catalogId);
 	}
 
 	public Catalog deleteCatItem(String catalogItemId, String catalogId, /*boolean sysCatalogId,*/ IUser userDB) throws SQLException {
-		Catalog cat = getCatalogById(catalogId);
+		Catalog cat = getRootCatalogById(catalogId);
 		if (cat == null) {
 			// TODO handle can not find cat
 			return null;
 		}
 		cat.deleteCatItem(catalogId, itemPaging, catalogItemId, user);
-		return getCatalogById(catalogId);
+		return getRootCatalogById(catalogId);
 		/*if (catalogId == null) {
 			return null;
 		}

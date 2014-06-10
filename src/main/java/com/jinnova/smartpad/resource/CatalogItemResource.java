@@ -57,6 +57,9 @@ public class CatalogItemResource {
 			if (updatedCatalogResult == null) {
 				return new JsonResponse(false, "Cannot find or update catalog item: " + updateCatalogItem.getValuesSingle().get(ICatalogField.F_NAME));
 			}
+			if (updatedCatalogResult.isSysCat()) {
+				return new CatalogResource().getSysCatalog(userName);
+			}
 			return updatedCatalogResult.getJsonResponse(user.toUserDB(), user.getToken());
 		} catch (SQLException e) {
 			return new JsonResponse(false, "Cannot save catalog info: " + e.getMessage());
@@ -75,6 +78,9 @@ public class CatalogItemResource {
 			Catalog deletedOneItemCatalog = user.deleteCatItem(catalogItemId, catalogId, /*isSysCat, */user.toUserDB());
 			if (deletedOneItemCatalog == null) {
 				return new JsonResponse(false, "Cannot delete catalog item info");
+			}
+			if (deletedOneItemCatalog.isSysCat()) {
+				return new CatalogResource().getSysCatalog(userName);
 			}
 			return new JsonResponse(true, deletedOneItemCatalog);
 		} catch (SQLException e) {
